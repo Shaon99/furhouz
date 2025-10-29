@@ -47,12 +47,12 @@ export default function Search({ onSearch }: Props) {
   };
 
   return (
-    <section className="pt-36">
+    <section className="pt-10 md:pt-36">
       <div className="flex flex-col items-center text-center py-16 sm:py-24 mt-10 lg:mt-40">
-        <h1 className="text-3xl font-bold text-white md:text-4xl px-4 lg:px-0">
+        <h1 className="text-2xl font-bold text-white md:text-4xl px-4 lg:px-0">
           Your furnished apartment ready to move
         </h1>
-        <p className="lead text-white max-w-6xl mt-3 text-[18px] px-4 lg:px-0">
+        <p className="lead text-white max-w-6xl mt-3 md:text-[18px] text-[16px] px-4 lg:px-0">
           Beautifully designed, fully furnished apartments in Gulshan, Banani,
           Baridhara and Bashundhara to make you feel at home
         </p>
@@ -61,7 +61,7 @@ export default function Search({ onSearch }: Props) {
           ref={popRef}
           className="
             mt-10 w-[90%]  max-w-4xl mx-auto
-            rounded-full bg-white shadow-[var(--shadow-md)]
+            rounded-full bg-brand-800 shadow-[var(--shadow-md)]
             ring-1 ring-[color:var(--warning)]
             px-2 py-2
             flex items-center gap-2
@@ -79,46 +79,46 @@ export default function Search({ onSearch }: Props) {
                 rounded-full pl-6 pr-4 py-3
                 font-semibold tracking-wide
                 text-[color:var(--foreground)]
-                bg-white
+                bg-brand-800
                 focus:outline-none focus-visible:ring-4
                 focus-visible:ring-brand-200
               "
             >
-              <span className="uppercase text-xs lg:text-base text-black font-semibold">
+              <span className="uppercase text-xs lg:text-base text-white font-semibold">
                 {place || "Explore a place"}
               </span>
-              <ChevronDown className="size-5 text-black font-bold ml-0 lg:ml-24" aria-hidden="true" />
+              <ChevronDown className="size-5 text-white font-bold ml-0 lg:ml-40" aria-hidden="true" />
             </button>
 
             {open && (
               <div
-                role="listbox"
-                tabIndex={-1}
-                className="
-                  absolute left-3 top-full z-20 mt-2 w-[320px] max-w-[80vw]
-                  rounded-2xl bg-white border border-[color:var(--warning)]
-                  shadow-[var(--shadow-md)]
-                  p-2
-                "
-              >
-                {LOCATIONS.map((loc) => (
-                  <button
-                    key={loc}
-                    role="option"
-                    aria-selected={place === loc}
-                    onClick={() => handleSelect(loc)}
-                    className="
-                      w-full text-left px-4 py-3 rounded-xl
-                      hover:bg-[color:var(--brand-50)]
-                      focus:outline-none focus-visible:ring-2
-                      focus-visible:ring-brand-200
-                      text-[color:var(--foreground)]
-                    "
-                  >
-                    {loc}
-                  </button>
-                ))}
-              </div>
+              role="listbox"
+              tabIndex={-1}
+              className="
+                absolute left-3 top-full z-20 mt-2 w-[320px] max-w-[80vw]
+                rounded-2xl bg-white border border-[color:var(--warning)]
+                shadow-[var(--shadow-md)]
+                p-2
+              "
+            >
+              {LOCATIONS.map((loc) => (
+                <button
+                  key={loc}
+                  role="option"
+                  aria-selected={place === loc}
+                  onClick={() => handleSelect(loc)}
+                  className="
+                    w-full text-left px-4 py-3 rounded-xl
+                    hover:bg-[color:var(--brand-50)]
+                    focus:outline-none focus-visible:ring-2
+                    focus-visible:ring-brand-200
+                    text-[color:var(--foreground)]
+                  "
+                >
+                  {loc}
+                </button>
+              ))}
+            </div>
             )}
             {error && (
               <span className="absolute left-0 -bottom-5 text-xs text-red-500">

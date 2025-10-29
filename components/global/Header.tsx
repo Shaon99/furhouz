@@ -14,13 +14,13 @@ export default function Header({
   imageClassName = "",
 }: HeaderProps) {
   return (
-    <header className={`relative w-full h-screen overflow-hidden ${className}`}>
+    <header className={`relative w-full h-[80vh] md:h-screen overflow-hidden ${className}`}>
       {/* Background Image */}
       <Image
         src='/hero.jpeg'
         alt="Header background"
         fill
-        className={`object-fill w-full h-full ${imageClassName}`}
+        className={`object-fill w-full h-[80%] md:h-full ${imageClassName}`}
         priority
         sizes="100vw"
       />
