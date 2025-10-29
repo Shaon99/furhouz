@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 
 import { Menu } from "lucide-react";
+import ResponsiveSearch from './ResponsiveSearch';
 
 const NAV_LINKS = [
   { href: "/property", label: "APARTMENTS" },
@@ -67,6 +68,10 @@ const Topbar = () => {
             <Image src="/logo.png" alt="Logo" width={150} height={150} priority />
           </Link>
         </div>
+
+        
+        <ResponsiveSearch onSubmit={() => {console.log('search')}} />
+        
         {/* Center: Nav Links (hidden on md and down) */}
         <nav className="flex-1 flex justify-center">
           <div className={`hidden lg:flex items-center space-x-8 font-bold uppercase tracking-wider ${navTextClass} text-[18px]`}>
@@ -96,7 +101,7 @@ const Topbar = () => {
               <SheetHeader>
                 <div className="flex items-center p-4 border-b">
                   <Link href="/" className="flex items-center gap-2" tabIndex={-1}>
-                    <Image src="/logo.png" alt="Logo" width={52} height={52} priority />
+                    <Image src="/logo.png" alt="Logo" width={100} height={100} priority />
                   </Link>
                   {/* Single cross icon, not doubled */}
                   <SheetClose asChild>

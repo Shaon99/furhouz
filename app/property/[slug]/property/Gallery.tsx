@@ -109,7 +109,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
                 alt={`Property image ${i + 1}`}
                 fill
                 priority={i === 0}
-                className="object-cover w-full h-full"
+                className="object-fill w-full h-full md:h-[650px] "
                 draggable={false}
                 style={{ transition: "transform .4s", borderRadius: "1rem" }}
               />
