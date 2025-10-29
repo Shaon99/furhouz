@@ -3,19 +3,19 @@ import React from 'react';
 const TermsConditionsPage: React.FC = () => {
   return (
     <div className="max-w-[1350px] py-10 lg:py-16 mt-12 container mx-auto">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold md:text-4xl text-gray-800">FurHouz Website Terms</h1>
-              <div className="mt-2">
-                <span className="inline-block w-36 h-1 bg-blue-500 rounded" />
-                <span className="inline-block align-middle ml-1 text-blue-500" style={{fontWeight: 'bold'}}>··</span>
-              </div>
-            </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold md:text-4xl text-gray-800">FurHouz Website Terms</h1>
+        <div className="mt-2">
+          <span className="inline-block w-36 h-1 bg-blue-500 rounded" />
+          <span className="inline-block align-middle ml-1 text-blue-500" style={{ fontWeight: 'bold' }}>··</span>
+        </div>
+      </div>
       <section className="mb-8">
         <h2 className="font-semibold text-3xl text-gray-700 mb-2">Introduction</h2>
         <p className="text-xl">
-          FurHouz (referred to as "we", "our" or "us") owns and manages the website furhouz.com, the site and its subsidiaries (collectively, the “Site”), where visitors can find information about our company and our services. This website contains policies, terms, and/or information regarding the usage and exploration of this website or content visible to you on or from the Site, in your capacity as a Site visitor/user. The information on this website is part of the site only, and may be accessed through the Site, by viewing any material contained hereon, or other approved broadcasting channels.
+          FurHouz (referred to as &quot;we&quot;, &quot;our&quot; or &quot;us&quot;) owns and manages the website furhouz.com, the site and its subsidiaries (collectively, the &quot;Site&quot;), where visitors can find information about our company and our services. This website contains policies, terms, and/or information regarding the usage and exploration of this website or content visible to you on or from the Site, in your capacity as a Site visitor/user. The information on this website is part of the site only, and may be accessed through the Site, by viewing any material contained hereon, or other approved broadcasting channels.
           <br /><br />
-          Certain important facts used in this basis but don’t affect the meaning as set forth in our Privacy Policy, which also includes additional details about the collection and use of information on this site.
+          Certain important facts used in this basis but don&apos;t affect the meaning as set forth in our Privacy Policy, which also includes additional details about the collection and use of information on this site.
         </p>
       </section>
 
@@ -31,7 +31,7 @@ const TermsConditionsPage: React.FC = () => {
       <section className="mb-8">
         <h2 className="font-semibold text-3xl text-gray-700 mb-2">Content And Use</h2>
         <p className="text-xl">
-          Any text, images, visuals, code, digital software and other content available on or through this Site (collectively, "Content") are owned by us or licensors and are for your personal and non-commercial use, unless otherwise authorized in writing by us. You agree not to reproduce, duplicate, copy, sell, trade, or otherwise exploit any portion of the Site or Content for any commercial purpose, except as specifically permitted by us in writing. We reserve the right to restrict or terminate your access to the Site, Content, or any portion thereof at any time, without notice, at our sole discretion, and without liability. We may monitor your use of the Site to ensure compliance with these Terms.
+          Any text, images, visuals, code, digital software and other content available on or through this Site (collectively, &quot;Content&quot;) are owned by us or licensors and are for your personal and non-commercial use, unless otherwise authorized in writing by us. You agree not to reproduce, duplicate, copy, sell, trade, or otherwise exploit any portion of the Site or Content for any commercial purpose, except as specifically permitted by us in writing. We reserve the right to restrict or terminate your access to the Site, Content, or any portion thereof at any time, without notice, at our sole discretion, and without liability. We may monitor your use of the Site to ensure compliance with these Terms.
         </p>
       </section>
 

@@ -3,6 +3,7 @@
 import { ListChecks } from "lucide-react";
 import { Property } from "../../types/property";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function FeaturesAndAmenities({ p }: { p: Property }) {
   return (
     <Box title="Features & Amenities" icon={<ListChecks className="h-5 w-5" />}>

@@ -9,18 +9,18 @@ import { useAreaData } from "@/lib/hooks/useAreaData";
 import { useAreaProperties } from "@/lib/hooks/useAreaProperties";
 import FurnishedSections from "@/components/furnished/FurnishedSections";
 import type { AreaSlug } from "@/components/furnished/data";
-import { Sparkles, MapPin, Diamond, Building2 } from "lucide-react"; 
+import { Sparkles, MapPin, Diamond, Building2 } from "lucide-react";
 
 export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug }> }) {
   const { slug } = use(params) as { slug: AreaSlug };
 
   const { areaData, isLoading: areaLoading, error: areaError } = useAreaData(slug);
-  const { 
-    properties, 
-    pagination, 
-    isLoading: propertiesLoading, 
+  const {
+    properties,
+    pagination,
+    isLoading: propertiesLoading,
     error: propertiesError,
-    loadPage 
+    loadPage
   } = useAreaProperties(slug, 1, 8);
 
   if (areaLoading) {
@@ -81,12 +81,12 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
               Available Properties in {areaData.name}
             </span>
           </h2>
-          
+
           {/* Error message */}
           {propertiesError && (
             <div className="text-center py-8">
               <p className="text-red-600 mb-4 text-lg font-semibold">{propertiesError}</p>
-              <button 
+              <button
                 onClick={() => loadPage(pagination.currentPage)}
                 className="px-6 py-3 bg-pink-600 text-white rounded-full hover:bg-pink-700 font-bold shadow-lg transition"
               >
@@ -94,20 +94,20 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
               </button>
             </div>
           )}
-          
+
           {/* Loading indicator */}
           {propertiesLoading && (
             <div className="flex justify-center mb-8">
               <LoadingSpinner size="lg" />
             </div>
           )}
-          
+
           {/* Properties Grid */}
           {!propertiesLoading && !propertiesError && (
             <>
               {properties.length === 0 ? (
                 <div className="text-center py-20 text-gray-400 text-xl font-semibold">
-                  <Sparkles className="inline w-8 h-8 mr-2 text-blue-300" /> 
+                  <Sparkles className="inline w-8 h-8 mr-2 text-blue-300" />
                   No properties found in this area.
                 </div>
               ) : (
@@ -119,7 +119,7 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
               )}
             </>
           )}
-          
+
           {/* Pagination Controls */}
           {!propertiesLoading && !propertiesError && pagination.totalPages > 1 && (
             <div className="mt-16 flex justify-center">
@@ -140,7 +140,7 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
 
 // --- Utility components ---
 
-function StatBox({ icon, value, label }: { icon: React.ReactNode, value: any, label: string }) {
+function StatBox({ icon, value, label }: { icon: React.ReactNode, value: string | number, label: string }) {
   return (
     <div className="flex items-center gap-2 bg-white/20 px-8 py-4 rounded-xl backdrop-blur border border-white/30 shadow-xl min-w-[180px] justify-center hover:scale-105 hover:shadow-2xl transition-all duration-300">
       <span>{icon}</span>

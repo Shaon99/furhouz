@@ -31,8 +31,8 @@ const FurnishedAppartment = () => {
             A furnished apartment comes fully equipped with furniture, appliances, and other amenities. Therefore, you don’t have to worry about transporting your own furniture. That will save you time and money. Furnished apartments are the best option for people who are moving to Dhaka temporarily. If you don’t want to buy new furniture, a furnished apartment will fulfill your needs.
           </p>
           <p>
-            Sometimes property dealers advertise their apartments as furnished apartments but don’t offer proper facilities.{" "}
-            <strong><em>"FurHouz"</em></strong> is pretty special on that note. We’re committed to our words. You are going to enjoy all the facilities that you expect from a furnished house. Would you like to get more information on that? Here you go.
+            Sometimes property dealers advertise their apartments as furnished apartments but don&apos;t offer proper facilities.{" "}
+            <strong><em>&quot;FurHouz&quot;</em></strong> is pretty special on that note. We&apos;re committed to our words. You are going to enjoy all the facilities that you expect from a furnished house. Would you like to get more information on that? Here you go.
           </p>
         </div>
       </div>

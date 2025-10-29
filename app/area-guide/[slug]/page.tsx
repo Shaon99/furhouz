@@ -61,15 +61,13 @@ const FaqItem = ({
   </div>
 );
 
-type AreaParams = { params: { slug: string } };
+type AreaParams = { params: Promise<{ slug: string }> };
 
 export default function AreaGuidePage({ params }: AreaParams) {
-  const unwrappedParams = typeof params.then === 'function' ? use(params) : params;
-  const { slug } = unwrappedParams;
+  const { slug } = use(params);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const data = DATA[slug];
   if (!data) return notFound();
-
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
     <main>
@@ -80,15 +78,15 @@ export default function AreaGuidePage({ params }: AreaParams) {
 
         <div className="mt-6 space-y-10">
           {data.sections.map((section, idx) => {
-            const items = (section as any).items;
+            const items = 'items' in section ? section.items : undefined;
             const isObjectItems = Array.isArray(items) && items.length > 0 && typeof items[0] === 'object';
             const isStringItems = Array.isArray(items) && items.length > 0 && typeof items[0] === 'string';
 
             return (
               <section key={idx}>
                 {section.heading && <H2>{section.heading}</H2>}
-                {isObjectItems && <ThreeColGrid items={items} />}
-                {isStringItems && <InlineBulletList items={items} />}
+                {isObjectItems && <ThreeColGrid items={items as { name: string; description: string }[]} />}
+                {isStringItems && <InlineBulletList items={items as string[]} />}
                 {"body" in section && section.body && (
                   <p className=" mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start">
                     {section.body}
