@@ -1,0 +1,228 @@
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
+
+/* Tailwind v4 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================
+   FurHouz Design Tokens (EXACT)
+   ============================ */
+:root{
+  /* Core (from audit) */                 /* body backgroundColor */                 /* body color */
+  --muted:#4b5563;                      /* small text rgb(75,85,99) */
+  --border:#e5e7eb;                     /* btn borderColor */
+  --elev:#ffffff;
+  --soft:#f7f8f9;
+
+  /* Brand (from btn/bg + derived shades) */
+  --brand-500:#064d83;                  /* rgb(6,77,131) */
+  --brand-600:#043a63;                  /* darker hover */
+  --brand-700:#032b4a;                  /* pressed */
+
+  /* System states (neutral) */
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+
+  /* Typography (from audit) */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --lh-tight:1.2;
+  --lh-normal:1.6;
+
+  /* Exact text sizes/line-heights from audit */
+  --fs-base:16px;                       /* body fontSize */
+  --fs-sm:14px;                         /* small fontSize */
+  --fs-h3:20px;                         /* h3 fontSize */
+  --fs-xl:24px;                         /* h1 fontSize */
+  --fs-2xl:36px;                        /* h2 fontSize */
+  --fs-lg:18px;                         /* paragraph size (from earlier sample) */
+  --fs-3xl:40px;                        /* matches h2 line-height */
+
+  /* Matching line-heights */
+  --lh-body:24px;                       /* body lineHeight */
+  --lh-h1:32px;                         /* h1 lineHeight */
+  --lh-h2:40px;                         /* h2 lineHeight */
+  --lh-h3:28px;                         /* h3 lineHeight */
+
+  /* Radius & shadow */
+  --radius-sm:.375rem;
+  --radius-md:.5rem;
+  --radius-lg:.75rem;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 6px 20px rgba(0,0,0,.08);
+}
+
+/* (Site doesn’t advertise dark styles; keep optional) */
+@media (prefers-color-scheme: dark){
+  :root{
+    --muted:#b3bac5;
+    --border:#242b34;
+  }
+}
+
+/* ============================
+   Tailwind Theme Tokens (v4)
+   ============================ */
+@theme inline{
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+
+  --text-xs:  12px;
+  --text-sm:  var(--fs-sm);
+  --text-base:var(--fs-base);
+  --text-lg:  var(--fs-lg);
+  --text-xl:  var(--fs-xl);
+  --text-2xl: var(--fs-2xl);
+  --text-3xl: var(--fs-3xl);
+}
+
+/* ========== Base ========== */
+@layer base{
+  html,body{height:100%}
+  body{
+    background-color:var(--background);
+    color:var(--foreground);
+    font-family:var(--font-sans);
+    font-size:var(--fs-base);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* FurHouz links are black in audit; keep brand for CTAs/buttons only */
+
+  img,svg,video{display:block;max-width:100%;height:auto}
+  :root {
+    --background:0 0% 100%;
+    --foreground:0 0% 3.9%;
+    --card:0 0% 100%;
+    --card-foreground:0 0% 3.9%;
+    --popover:0 0% 100%;
+    --popover-foreground:0 0% 3.9%;
+    --primary:0 0% 9%;
+    --primary-foreground:0 0% 98%;
+    --secondary:0 0% 96.1%;
+    --secondary-foreground:0 0% 9%;
+    --muted:0 0% 96.1%;
+    --muted-foreground:0 0% 45.1%;
+    --accent:0 0% 96.1%;
+    --accent-foreground:0 0% 9%;
+    --destructive:0 84.2% 60.2%;
+    --destructive-foreground:0 0% 98%;
+    --border:0 0% 89.8%;
+    --input:0 0% 89.8%;
+    --ring:0 0% 3.9%;
+    --chart-1:12 76% 61%;
+    --chart-2:173 58% 39%;
+    --chart-3:197 37% 24%;
+    --chart-4:43 74% 66%;
+    --chart-5:27 87% 67%;
+    --radius:0.5rem;
+  }
+  .dark {
+    --background:0 0% 3.9%;
+    --foreground:0 0% 98%;
+    --card:0 0% 3.9%;
+    --card-foreground:0 0% 98%;
+    --popover:0 0% 3.9%;
+    --popover-foreground:0 0% 98%;
+    --primary:0 0% 98%;
+    --primary-foreground:0 0% 9%;
+    --secondary:0 0% 14.9%;
+    --secondary-foreground:0 0% 98%;
+    --muted:0 0% 14.9%;
+    --muted-foreground:0 0% 63.9%;
+    --accent:0 0% 14.9%;
+    --accent-foreground:0 0% 98%;
+    --destructive:0 62.8% 30.6%;
+    --destructive-foreground:0 0% 98%;
+    --border:0 0% 14.9%;
+    --input:0 0% 14.9%;
+    --ring:0 0% 83.1%;
+    --chart-1:220 70% 50%;
+    --chart-2:160 60% 45%;
+    --chart-3:30 80% 55%;
+    --chart-4:280 65% 60%;
+    --chart-5:340 75% 55%;
+  }
+}
+
+/* ========== Components ========== */
+@layer components{
+  .container{@apply mx-auto w-full px-4 sm:px-6}
+  /* Audit showed ~1204px max width */
+  .container{max-width:1400px}
+
+  .card{
+    background:var(--elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    padding:1.25rem;
+  }
+  .card:hover{box-shadow:var(--shadow-md)}
+
+  .btn{
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 font-semibold text-white;
+    background-color:var(--brand-500);
+    border:1px solid transparent;
+    transition:transform .15s, box-shadow .2s, background-color .2s;
+  }
+  .btn:hover{background-color:var(--brand-600); transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+
+  .btn-outline{
+    color:var(--brand-700);
+    background:transparent;
+    border:1px solid var(--border);
+  }
+
+  .input,.select,.textarea{
+    background:transparent;              /* audit: rgba(0,0,0,0) */
+    color:var(--foreground);
+    border:1px solid var(--border);      /* nicer than pure black while staying faithful */
+    border-radius:var(--radius-md);
+    padding:.5rem .875rem;
+    outline:none; width:100%;
+    transition:box-shadow .2s, border-color .2s;
+    box-sizing:border-box;
+  }
+  .input::placeholder,.textarea::placeholder{color:var(--muted)}
+  .input:focus,.select:focus,.textarea:focus{
+    border-color:var(--brand-500);
+    box-shadow:0 0 0 3px color-mix(in oklab, var(--brand-500) 25%, transparent);
+  }
+
+  /* Headings (exact sizes/line-heights/weights from audit) */
+  .h1{font-size:var(--fs-xl); line-height:var(--lh-h1); font-weight:700; letter-spacing:normal}
+  .h2{font-size:var(--fs-2xl);line-height:var(--lh-h2); font-weight:700; letter-spacing:normal}
+  .h3{font-size:var(--fs-h3); line-height:var(--lh-h3); font-weight:700; letter-spacing:normal}
+  .p {font-size:var(--fs-lg); line-height:var(--lh-normal)}
+  .small{font-size:var(--fs-sm); line-height:var(--lh-normal); color:var(--muted)}
+}
+
+/* ========== Utilities ========== */
+@layer utilities{
+  .text-brand{color:var(--brand-500)}
+  .text-brand-dark{color:var(--brand-700)}
+  .text-muted{color:var(--muted)}
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
