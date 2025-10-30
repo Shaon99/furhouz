@@ -17,55 +17,71 @@ import FeaturesAndAmenities from "./FeaturesAndAmenities";
 import EnquiryForm from "./EnquiryForm";
 import RelatedAppartment from "@/components/card/RelatedAppartment";
 
-// --- Responsive thumbs per view, improved for fluid mobile ---
-function useDynamicThumbsToShow(imagesLength: number) {
-  const [thumbsToShow, setThumbsToShow] = useState(4);
-  useEffect(() => {
-    const update = () => {
-      let base = 4;
-      const w = typeof window !== "undefined" ? window.innerWidth : 1280;
-      if (w < 400) base = Math.min(2.1, imagesLength);
-      else if (w < 520) base = Math.min(2.7, imagesLength);
-      else if (w < 640) base = Math.min(3.5, imagesLength);
-      else if (w < 768) base = Math.min(4, imagesLength);
-      else if (w < 1024) base = Math.min(5, imagesLength);
-      else if (w < 1280) base = Math.min(7, imagesLength);
-      else {
-        // LG, XL, desktop: keep same logic but allow fewer visible thumbs for easier gap control
-        if (imagesLength <= 7) base = imagesLength;
-        else if (imagesLength < 10) base = 4;
-        else if (imagesLength < 13) base = 5;
-        else if (imagesLength < 16) base = 6;
-        else base = 6.5;
-      }
-      setThumbsToShow(Math.max(1, base));
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [imagesLength]);
-  return thumbsToShow;
+// Always 5 thumbs per view for thumbnail slider, for all screens >= 768px
+function useThumbsToShow() {
+  // Fixed at 5 for all breakpoints as per instruction
+  return 5;
 }
 
-// Moved thumb responsive CSS outside JSX, for Next.js compatibility
-// Must be global in the file
+// Adjust main image gallery height per md, lg, xl, 2xl and desktop
+const GALLERY_HEIGHT_CSS = `
+  .property-gallery-swiper-main {
+    height: 260px;
+    max-height: 280px;
+  }
+  @media (min-width: 640px) {
+    .property-gallery-swiper-main {
+      height: 300px;
+      max-height: 340px;
+    }
+  }
+  @media (min-width: 768px) {
+    .property-gallery-swiper-main {
+      height: 420px;
+      max-height: 500px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .property-gallery-swiper-main {
+      height: 530px;
+      max-height: 570px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .property-gallery-swiper-main {
+      height: 650px;
+      max-height: 720px;
+    }
+  }
+  @media (min-width: 1536px) {
+    .property-gallery-swiper-main {
+      height: 780px;
+      max-height: 850px;
+    }
+  }
+`;
+
+// Thumb slider: increase width, decrease gap for desktop
 const THUMB_RESPONSIVE_CSS = `
   @media (min-width: 1024px) {
     .thumb-slide {
-      width: 115px !important;
-      height: 65px !important;
+      width: 138px !important;
+      height: 70px !important;
+      margin-right: 12px !important;
     }
   }
   @media (min-width: 1280px) {
     .thumb-slide {
-      width: 135px !important;
-      height: 75px !important;
+      width: 158px !important;
+      height: 80px !important;
+      margin-right: 10px !important;
     }
   }
   @media (min-width: 1536px) {
     .thumb-slide {
-      width: 165px !important;
+      width: 190px !important;
       height: 90px !important;
+      margin-right: 8px !important;
     }
   }
 `;
@@ -73,20 +89,19 @@ const THUMB_RESPONSIVE_CSS = `
 export default function Gallery({ images, property }: { images: string[]; property: Property }) {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const thumbSliderRef = useRef<SwiperClass | null>(null);
-  const thumbsToShow = useDynamicThumbsToShow(images.length);
+  const thumbsToShow = useThumbsToShow();
 
   const handlePrev = () => thumbSliderRef.current?.slidePrev();
   const handleNext = () => thumbSliderRef.current?.slideNext();
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full mx-auto">
       {/* Main gallery */}
       <div
         className="rounded-2xl overflow-hidden shadow-xl border-[2.5px] border-blue-200 mb-3 relative group"
         style={{
           aspectRatio: "16/7",
           width: "100%",
-          maxHeight: 460,
           background: "linear-gradient(135deg, #fafbfe 0%, #e6f0fc 100%)"
         }}
       >
@@ -94,7 +109,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
           thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
           modules={[Thumbs, Autoplay]}
           spaceBetween={0}
-          className="rounded-2xl w-full h-full"
+          className="rounded-2xl w-full h-full property-gallery-swiper-main"
           autoplay={{
             delay: 3500,
             disableOnInteraction: false,
@@ -109,19 +124,22 @@ export default function Gallery({ images, property }: { images: string[]; proper
                 alt={`Property image ${i + 1}`}
                 fill
                 priority={i === 0}
-                className="object-fill w-full h-full md:h-[650px] "
+                className="object-fill w-full h-full"
                 draggable={false}
-                style={{ transition: "transform .4s", borderRadius: "1rem" }}
+                style={{
+                  transition: "transform .4s",
+                  borderRadius: "1rem"
+                }}
               />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
 
-      {/* Thumbs slider: fully responsive, fixes mobile overflow */}
+      {/* Thumbs slider - always 5 per view, gap low, width up */}
       <div className="relative w-full mt-2 px-1 sm:px-2">
         <div className="relative">
-          {images.length > Math.round(thumbsToShow || 5) && (
+          {images.length > thumbsToShow && (
             <>
               <button
                 onClick={handlePrev}
@@ -156,19 +174,18 @@ export default function Gallery({ images, property }: { images: string[]; proper
               slideToClickedSlide
               centeredSlides={false}
               slidesPerView={thumbsToShow}
-              // Reduce gap (spaceBetween) in lg/xl, increase slide width by CSS
-              spaceBetween={8}
+              spaceBetween={6}
               className="rounded-md"
               grabCursor={true}
               breakpoints={{
                 0:    { slidesPerView: Math.min(thumbsToShow, 2.1), spaceBetween: 4 },
-                400:  { slidesPerView: Math.min(thumbsToShow, 2.5), spaceBetween: 6 },
-                520:  { slidesPerView: Math.min(thumbsToShow, 3.2), spaceBetween: 8 },
-                640:  { slidesPerView: Math.min(thumbsToShow, 3.5), spaceBetween: 10 },
-                768:  { slidesPerView: Math.min(thumbsToShow, 4),   spaceBetween: 14 },
-                1024: { slidesPerView: Math.min(thumbsToShow, 5),   spaceBetween: 14 },
-                1280: { slidesPerView: Math.min(thumbsToShow, 4.9), spaceBetween: 12 }, // desktop: wider, less gap
-                1536: { slidesPerView: Math.min(thumbsToShow, 4.5), spaceBetween: 10 }, // xl: wider, even less gap
+                400:  { slidesPerView: Math.min(thumbsToShow, 4), spaceBetween: 6 },
+                520:  { slidesPerView: Math.min(thumbsToShow, 4), spaceBetween: 8 },
+                640:  { slidesPerView: Math.min(thumbsToShow, 5), spaceBetween: 8 },
+                768:  { slidesPerView: 5,   spaceBetween: 10 },
+                1024: { slidesPerView: 5,   spaceBetween: 7 },
+                1280: { slidesPerView: 5,   spaceBetween: 5 },
+                1536: { slidesPerView: 5,   spaceBetween: 4 },
               }}
               style={{
                 minHeight: 60,
@@ -183,9 +200,8 @@ export default function Gallery({ images, property }: { images: string[]; proper
                   <div
                     className="thumb-slide mx-auto flex items-center justify-center"
                     style={{
-                      // Dynamic width for lg/xl (desktop), keeping default for base/sm
                       height: "52px",
-                      maxHeight: "70px",
+                      maxHeight: "85px",
                       minWidth: "86px",
                       background: "#fff",
                       borderRadius: "0.75rem",
@@ -194,11 +210,9 @@ export default function Gallery({ images, property }: { images: string[]; proper
                       boxShadow: "0px 1.5px 7px #e0eefa60",
                       transition: "box-shadow 0.2s, border-color 0.2s, width 0.23s",
                       aspectRatio: "16/9",
-                      // Increase width for large screens
-                      width: "92px",
+                      width: "100px",
                     }}
                   >
-                    {/* Global responsive .thumb-slide styles are now applied below */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={src}
@@ -235,6 +249,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
       </div>
       
       <style jsx global>{`
+        ${GALLERY_HEIGHT_CSS}
         ${THUMB_RESPONSIVE_CSS}
         .swiper-slide-thumb-active .thumb-slide {
           border-color: #0ea5e9 !important; /* blue-500 */

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Search } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Search, X } from "lucide-react";
 
 export default function ResponsiveSearch({
   placeholder = "Search your products",
@@ -17,62 +17,89 @@ export default function ResponsiveSearch({
     onSubmit?.(q);
   };
 
-  const handleIconClick = () => {
+  const openInput = () => {
     setShowInput(true);
-    setTimeout(() => inputRef.current?.focus(), 100);
+    setTimeout(() => inputRef.current?.focus(), 60);
   };
 
   const handleBlur = () => {
-    // Hide input on blur only for small screens
-    if (window.innerWidth < 768) {
-      setShowInput(false);
-    }
+    if (window.innerWidth < 768) setShowInput(false);
   };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape" && window.innerWidth < 768) setShowInput(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <form
       onSubmit={handleSubmit}
-      className={`block md:block lg:hidden relative ${className} md:ml-16 ml-2`}
+      className={`block md:block lg:hidden relative w-full ${className} md:ml-16 ml-2`}
       aria-label="Search"
     >
-      <div className="flex items-center justify-end w-full">
-        {/* Input field — visible on md+ always, toggle on mobile */}
-        <div
-          className={`relative transition-all duration-300 ease-in-out overflow-hidden ${
-            showInput ? "w-44" : "w-0"
-          } md:w-[22rem]`}
-        >
-          <input
-            ref={inputRef}
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            className="
-              w-full text-sm px-4 py-2 rounded-full border border-[#f4a321]
-              outline-none focus:ring-0 focus:border-gray-300
-              placeholder-gray-500 text-gray-800
-            "
-          />
-          <button
-            type="submit"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-        </div>
-        {/* Search icon button (always visible on mobile, at right side) */}
-        {showInput ? null : (
+      <div className="relative w-full flex items-center justify-end">
+        {!showInput && (
           <button
             type="button"
-            onClick={handleIconClick}
-            className="p-2 rounded-full bg-white text-gray-600 hover:text-gray-800 focus:outline-none md:hidden ml-2"
+            onClick={openInput}
+            className="p-2 rounded-full bg-brand text-brand md:hidden"
             aria-label="Open search"
+            style={{ position: "absolute", right: 0 }}
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-5 h-5 text-brand" />
           </button>
         )}
+
+        <div
+          className={[
+            "fixed top-3 left-0 w-full h-[56px] z-40 flex items-center  md:static md:block md:w-[22rem] md:shadow-none md:h-auto transition-all duration-300 ease-out",
+            showInput
+              ? "translate-x-0 opacity-100 pointer-events-auto"
+              : "translate-x-full opacity-100 pointer-events-none md:translate-x-0 md:opacity-100 md:pointer-events-auto",
+          ].join(" ")}
+          style={{
+            // only slide on mobile
+            transitionProperty: 'transform, opacity',
+          }}
+        >
+          <div className="relative w-full flex items-center px-3 md:px-0">
+            <input
+              ref={inputRef}
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onBlur={handleBlur}
+              placeholder={placeholder}
+              className="
+                w-full text-sm pl-4 pr-10 py-2.5 rounded-full border border-brand-700
+                outline-none focus:ring-0 focus:border-brand-700
+                placeholder-brand text-brand bg-white
+              "
+            />
+            <button
+              type="submit"
+              className="absolute right-6 md:right-3 top-1/2 -translate-y-1/2 text-brand"
+              aria-label="Submit search"
+            >
+              <Search className="w-4 h-4 text-brand" />
+            </button>
+            {/* Close button for mobile */}
+            {showInput && (
+              <button
+                type="button"
+                tabIndex={-1}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 md:hidden"
+                onClick={() => setShowInput(false)}
+                aria-label="Close search"
+                style={{ background: "transparent" }}
+              >
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </form>
   );

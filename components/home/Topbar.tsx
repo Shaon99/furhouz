@@ -94,7 +94,7 @@ const Topbar = () => {
                 aria-label="Open menu"
                 className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-100 focus:outline-none"
               >
-                <Menu size={28} className={`${navTextClass}`} />
+                <Menu size={28} className={`${navTextClass} text-brand`} />
               </button>
             </SheetTrigger>
             <SheetContent side="right" className="w-64 lg:w-80 p-0">

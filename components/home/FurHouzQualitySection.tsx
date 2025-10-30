@@ -15,7 +15,7 @@ export default function FurHouzQualitySection({
           <h3 className="font-semibold text-3xl md:text-3xl text-brand mb-4 tracking-tight">
             Award Winning Quality As Standard
           </h3>
-          <p className="text-sm md:text-lg text-gray-600 max-w-2xl leading-relaxed mb-6">
+          <p className="text-sm md:text-lg text-gray-600 max-w-2xl leading-relaxed mb-6 text-justify md:text-start">
             Just because you’re renting your home, doesn’t mean you shouldn’t feel at home – which is why every one of our apartments comes fully furnished, with high-end furniture that maximizes space without compromising on comfort. Our commitment to sustainability also means that our properties come finished to a market-leading standard – with Amtico flooring, Samsung Appliances, and underfloor heating. With all utilities included, everything you need is covered in one single payment.
           </p>
         </div>
