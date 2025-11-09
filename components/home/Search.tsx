@@ -1,6 +1,7 @@
 "use client";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 const LOCATIONS = [
   "Gulshan",
@@ -9,6 +10,15 @@ const LOCATIONS = [
   "Bashundhara",
   "Luxury Apartments",
 ];
+
+// Map location names to slugs
+const LOCATION_TO_SLUG: Record<string, string> = {
+  "Gulshan": "gulshan",
+  "Banani": "banani",
+  "Baridhara": "baridhara",
+  "Bashundhara": "bashundhara",
+  "Luxury Apartments": "luxury-apartments",
+};
 
 type Props = {
   onSearch?: (place: string) => void;
@@ -57,24 +67,28 @@ export default function Search({ onSearch }: Props) {
           Baridhara and Bashundhara to make you feel at home
         </p>
 
+        {/* Entire input/searchbar is clickable to open modal */}
         <div
           ref={popRef}
           className="
-            mt-10 w-[90%]  max-w-4xl mx-auto
+            mt-10 w-[90%] max-w-4xl mx-auto
             rounded-full bg-brand-800 shadow-[var(--shadow-md)]
             ring-1 ring-[color:var(--warning)]
             px-2 py-2
             flex items-center gap-2
+            cursor-pointer
+            relative
           "
           role="search"
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest(".sf-search-btn")) return;
+            setOpen(true);
+          }}
         >
-          <div className="relative">
-            <button
-              type="button"
-              aria-haspopup="listbox"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
+          <div className="relative flex-1 z-0">
+            <div
               className="
+                w-full
                 inline-flex items-center gap-2
                 rounded-full pl-6 pr-4 py-3
                 font-semibold tracking-wide
@@ -82,43 +96,104 @@ export default function Search({ onSearch }: Props) {
                 bg-brand-800
                 focus:outline-none focus-visible:ring-4
                 focus-visible:ring-brand-200
+                select-none
+                cursor-pointer
+                uppercase text-white
+                text-left
+                justify-start
+                text-xs
+                md:text-base
               "
+              tabIndex={0}
+              aria-haspopup="listbox"
+              aria-expanded={open}
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") setOpen(v => !v);
+              }}
+              style={{ outline: "none", border: "none" }}
             >
-              <span className="uppercase text-xs lg:text-base text-white font-semibold">
+
+              <span
+                className={`
+                  truncate
+                  max-w-[110px]
+                  md:max-w-none
+                  ${place ? "" : "opacity-80"}
+                  text-[12px] md:text-[16px] font-semibold uppercase
+                  md:tracking-wide
+                 `}
+                style={{
+                  lineHeight: "1.1",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {place || "Explore a place"}
               </span>
-              <ChevronDown className="size-5 text-white font-bold ml-0 lg:ml-40" aria-hidden="true" />
-            </button>
+              <span className="flex items-center justify-center ml-1">
+                <ChevronDown
+                  className="
+                    w-4 h-4 md:w-5 md:h-5
+                    text-white font-bold flex-shrink-0
+                    relative top-0
+                  "
+                  aria-hidden="true"
+                />
+              </span>
+            </div>
 
             {open && (
               <div
-              role="listbox"
-              tabIndex={-1}
-              className="
-                absolute left-3 top-full z-20 mt-2 w-[320px] max-w-[80vw]
-                rounded-2xl bg-white border border-[color:var(--warning)]
-                shadow-[var(--shadow-md)]
-                p-2
-              "
-            >
-              {LOCATIONS.map((loc) => (
-                <button
-                  key={loc}
-                  role="option"
-                  aria-selected={place === loc}
-                  onClick={() => handleSelect(loc)}
-                  className="
-                    w-full text-left px-4 py-3 rounded-xl
-                    hover:bg-[color:var(--brand-50)]
-                    focus:outline-none focus-visible:ring-2
-                    focus-visible:ring-brand-200
-                    text-[color:var(--foreground)]
-                  "
-                >
-                  {loc}
-                </button>
-              ))}
-            </div>
+                role="listbox"
+                tabIndex={-1}
+                className="
+                  absolute left-3 top-full z-20 mt-2 w-[320px] max-w-[80vw]
+                  rounded-2xl bg-white border border-[color:var(--warning)]
+                  shadow-[var(--shadow-md)]
+                  p-2
+                "
+              >
+                {LOCATIONS.map((loc) => {
+                  const slug = LOCATION_TO_SLUG[loc];
+                  const isAreaPage = slug && slug !== "luxury-apartments";
+                  if (isAreaPage) {
+                    return (
+                      <Link
+                        key={loc}
+                        href={`/area/${slug}`}
+                        role="option"
+                        aria-selected={place === loc}
+                        onClick={() => handleSelect(loc)}
+                        className="
+                          block w-full text-left px-4 py-3 rounded-xl
+                          hover:bg-[color:var(--brand-50)]
+                          focus:outline-none focus-visible:ring-2
+                          focus-visible:ring-brand-200
+                          text-[color:var(--foreground)]
+                        "
+                      >
+                        {loc}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <button
+                      key={loc}
+                      role="option"
+                      aria-selected={place === loc}
+                      onClick={() => handleSelect(loc)}
+                      className="
+                        w-full text-left px-4 py-3 rounded-xl
+                        hover:bg-[color:var(--brand-50)]
+                        focus:outline-none focus-visible:ring-2
+                        focus-visible:ring-brand-200
+                        text-[color:var(--foreground)]
+                      "
+                    >
+                      {loc}
+                    </button>
+                  );
+                })}
+              </div>
             )}
             {error && (
               <span className="absolute left-0 -bottom-5 text-xs text-red-500">
@@ -132,11 +207,13 @@ export default function Search({ onSearch }: Props) {
           <button
             onClick={handleSearch}
             className="
-              btn rounded-full lg:px-12 py-3 text-base
+              sf-search-btn btn rounded-full lg:px-12 py-3 text-base
               bg-brand-700 hover:bg-brand-800 px-8
+              z-10
             "
             aria-label="Search"
             type="button"
+            tabIndex={0}
           >
             Search
           </button>
