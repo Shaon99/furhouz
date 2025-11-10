@@ -3,10 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 
+/**
+ * @param {Object} props
+ * @param {string} [props.placeholder="Search your products"]
+ * @param {Function} [props.onSubmit]
+ * @param {string} [props.className=""]
+ * @param {boolean} [props.isScrolled=false]
+ */
 export default function ResponsiveSearch({
   placeholder = "Search your products",
   onSubmit,
   className = "",
+  isScrolled = false,
 }) {
   const [q, setQ] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -34,6 +42,13 @@ export default function ResponsiveSearch({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Close search input when scrolling back to top on mobile
+  useEffect(() => {
+    if (!isScrolled && window.innerWidth < 768) {
+      setShowInput(false);
+    }
+  }, [isScrolled]);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -45,7 +60,9 @@ export default function ResponsiveSearch({
           <button
             type="button"
             onClick={openInput}
-            className="p-2 rounded-full bg-brand text-brand md:hidden"
+            className={`p-2 rounded-full bg-brand text-brand md:hidden transition-opacity duration-300 ${
+              isScrolled ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
             aria-label="Open search"
             style={{ position: "absolute", right: 0 }}
           >
