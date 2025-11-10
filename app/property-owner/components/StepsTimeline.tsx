@@ -20,7 +20,7 @@ export default function StepsTimeline() {
         {/* 1 Right (Gray) */}
         <div className="mb-10 flex justify-between items-center w-full">
           <div className="order-1 w-5/12"></div>
-          <div className="z-20 flex items-center justify-center order-1 bg-gray-800 shadow-xl w-8 h-8 rounded-full">
+          <div className="z-20 flex items-center justify-center order-1 bg-gray-400 shadow-xl w-8 h-8 rounded-full">
             <span className="font-semibold text-sm text-white">1</span>
           </div>
           <div className="order-1 bg-gray-400 rounded-lg shadow-xl w-5/12 px-6 py-4">
@@ -34,13 +34,13 @@ export default function StepsTimeline() {
           </div>
         </div>
 
-        {/* 2 Left (Red) */}
+        {/* 2 Left (Brand) */}
         <div className="mb-10 flex justify-between flex-row-reverse items-center w-full">
           <div className="order-1 w-5/12"></div>
-          <div className="z-20 flex items-center justify-center order-1 bg-gray-800 shadow-xl w-8 h-8 rounded-full">
+          <div className="z-20 flex items-center justify-center order-1 bg-brand-700 shadow-xl w-8 h-8 rounded-full">
             <span className="font-semibold text-sm text-white">2</span>
           </div>
-          <div className="order-1 bg-red-400 rounded-lg shadow-xl w-5/12 px-6 py-4 text-white">
+          <div className="order-1 bg-brand-700 rounded-lg shadow-xl w-5/12 px-6 py-4 text-white">
             <h3 className="mb-2 font-bold text-white text-lg">
               Visit in the apartment
             </h3>
@@ -54,7 +54,7 @@ export default function StepsTimeline() {
         {/* 3 Right (Gray) */}
         <div className="mb-10 flex justify-between items-center w-full">
           <div className="order-1 w-5/12"></div>
-          <div className="z-20 flex items-center justify-center order-1 bg-gray-800 shadow-xl w-8 h-8 rounded-full">
+          <div className="z-20 flex items-center justify-center order-1 bg-gray-400 shadow-xl w-8 h-8 rounded-full">
             <span className="font-semibold text-sm text-white">3</span>
           </div>
           <div className="order-1 bg-gray-400 rounded-lg shadow-xl w-5/12 px-6 py-4">
@@ -68,13 +68,13 @@ export default function StepsTimeline() {
           </div>
         </div>
 
-        {/* 4 Left (Red) */}
+        {/* 4 Left (Brand) */}
         <div className="mb-10 flex justify-between flex-row-reverse items-center w-full">
           <div className="order-1 w-5/12"></div>
-          <div className="z-20 flex items-center justify-center order-1 bg-gray-800 shadow-xl w-8 h-8 rounded-full">
+          <div className="z-20 flex items-center justify-center order-1 bg-brand-700 shadow-xl w-8 h-8 rounded-full">
             <span className="font-semibold text-sm text-white">4</span>
           </div>
-          <div className="order-1 bg-red-400 rounded-lg shadow-xl w-5/12 px-6 py-4 text-white">
+          <div className="order-1 bg-brand-700 rounded-lg shadow-xl w-5/12 px-6 py-4 text-white">
             <h3 className="mb-2 font-bold text-white text-lg">
               Renovation &amp; Decor
             </h3>
@@ -88,7 +88,7 @@ export default function StepsTimeline() {
         {/* 5 Right (Gray) */}
         <div className="mb-2 flex justify-between items-center w-full">
           <div className="order-1 w-5/12"></div>
-          <div className="z-20 flex items-center justify-center order-1 bg-gray-800 shadow-xl w-8 h-8 rounded-full">
+          <div className="z-20 flex items-center justify-center order-1 bg-gray-400 shadow-xl w-8 h-8 rounded-full">
             <span className="font-semibold text-sm text-white">5</span>
           </div>
           <div className="order-1 bg-gray-400 rounded-lg shadow-xl w-5/12 px-6 py-4">
@@ -106,7 +106,7 @@ export default function StepsTimeline() {
       {/* Mobile */}
       <div className="md:hidden grid grid-cols-1 text-center">
         <div className="px-6 py-6">
-          <span className="bg-gray-800 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
+          <span className="bg-gray-400 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
             1
           </span>
           <h3 className="text-2xl py-3 font-semibold">
@@ -118,7 +118,7 @@ export default function StepsTimeline() {
           </p>
         </div>
         <div className="px-6 py-6">
-          <span className="bg-gray-800 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
+          <span className="bg-brand-700 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
             2
           </span>
           <h3 className="text-2xl py-3 font-semibold">
@@ -130,7 +130,7 @@ export default function StepsTimeline() {
           </p>
         </div>
         <div className="px-6 py-6">
-          <span className="bg-gray-800 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
+          <span className="bg-gray-400 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
             3
           </span>
           <h3 className="text-2xl py-3 font-semibold">Lease contract</h3>
@@ -140,7 +140,7 @@ export default function StepsTimeline() {
           </p>
         </div>
         <div className="px-6 py-6">
-          <span className="bg-gray-800 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
+          <span className="bg-brand-700 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
             4
           </span>
           <h3 className="text-2xl py-3 font-semibold">
@@ -152,7 +152,7 @@ export default function StepsTimeline() {
           </p>
         </div>
         <div className="px-6 py-6">
-          <span className="bg-gray-800 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
+          <span className="bg-gray-400 text-white inline-flex items-center justify-center w-10 h-10 rounded-full font-semibold">
             5
           </span>
           <h3 className="text-2xl py-3 font-semibold">Guaranteed Payment</h3>

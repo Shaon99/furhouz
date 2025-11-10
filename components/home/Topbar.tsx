@@ -70,20 +70,25 @@ const Topbar = () => {
         </div>
 
         
-        <ResponsiveSearch onSubmit={() => {console.log('search')}} />
+        <ResponsiveSearch onSubmit={() => {console.log('search')}} isScrolled={isScrolled} />
         
         {/* Center: Nav Links (hidden on md and down) */}
         <nav className="flex-1 flex justify-center">
           <div className={`hidden lg:flex items-center space-x-8 font-bold uppercase tracking-wider ${navTextClass} text-[18px]`}>
-            {NAV_LINKS.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="hover:text-[#00A6D6] transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map(link => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`hover:text-[#00A6D6] transition-colors ${
+                    isActive ? 'text-[#00A6D6]' : ''
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </nav>
         {/* Right: Menu Icon (only shown on small screens, never on md+) */}
@@ -114,16 +119,21 @@ const Topbar = () => {
                 </div>
               </SheetHeader>
               <nav className="flex flex-col px-4 py-8 space-y-6 font-bold uppercase tracking-wider text-gray-700 text-lg">
-                {NAV_LINKS.map(link => (
-                  <SheetClose asChild key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="hover:text-[#00A6D6] transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </SheetClose>
-                ))}
+                {NAV_LINKS.map(link => {
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+                  return (
+                    <SheetClose asChild key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={`hover:text-[#00A6D6] transition-colors ${
+                          isActive ? 'text-[#00A6D6]' : ''
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </SheetClose>
+                  );
+                })}
               </nav>
             </SheetContent>
           </Sheet>
