@@ -3,6 +3,10 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination, FreeMode, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 type Testimonial = {
   quote: string;
@@ -11,6 +15,7 @@ type Testimonial = {
 };
 
 const DATA: Testimonial[] = [
+  // ... (সঠিকভাবে তোমার আগের DATA এখানে থাকবে)
   {
     quote:
       "FurHouz’s management is very good, professional and very accommodating. As for the apartment, they provided good options according to my preference and choice of locations, and I got a great apartment by the way. Overall, their service is wonderful, I’m really happier”.",
@@ -49,7 +54,6 @@ const DATA: Testimonial[] = [
   },
 ];
 
-
 export default function TestimonialsSlider() {
   return (
     <section className="pb-24 mx-auto w-full md:w-[88%] lg:w-[85%] xl:w-[80%] max-w-[1400px]">
@@ -65,6 +69,25 @@ export default function TestimonialsSlider() {
 
       {/* Slider */}
       <div className="container mx-auto relative">
+        {/* <-- Custom navigation buttons (rounded, responsive) --> */}
+        <button
+          aria-label="Previous slide"
+          className="my-swiper-prev absolute left-1 top-[45%] -translate-y-1/2 z-20 rounded-full shadow-md flex items-center justify-center bg-brand-600 hover:scale-105 transition-transform p-2 md:p-3 lg:p-3 focus:outline-none"
+          style={{ backdropFilter: "blur(4px)" }}
+        >
+          {/* left arrow (rotate) */}
+          <ChevronLeftIcon className="w-4 h-4 md:w-6 md:h-6 text-white" />
+        </button>
+
+        <button
+          aria-label="Next slide"
+          className="my-swiper-next absolute right-1 top-[45%] -translate-y-1/2 z-20 rounded-full shadow-md flex items-center justify-center bg-brand-600 hover:scale-105 transition-transform p-2 md:p-3 lg:p-3 focus:outline-none"
+          style={{ backdropFilter: "blur(4px)" }}
+        >
+          {/* right arrow (original) */}
+          <ChevronRightIcon className="w-4 h-4 md:w-6 md:h-6 text-white" />
+        </button>
+
         <Swiper
           modules={[Autoplay, Navigation, Pagination, FreeMode, A11y]}
           slidesPerView={3}
@@ -74,17 +97,18 @@ export default function TestimonialsSlider() {
           freeMode
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
-          navigation
+          // use our custom selector classes for navigation
+          navigation={{ nextEl: ".my-swiper-next", prevEl: ".my-swiper-prev" }}
           breakpoints={{
             0: { slidesPerView: 1, spaceBetween: 16, centeredSlides: true },
             500: { slidesPerView: 1, spaceBetween: 18, centeredSlides: true },
             640: { slidesPerView: 1, spaceBetween: 22, centeredSlides: true },
-            768: { slidesPerView: 2, spaceBetween: 28, centeredSlides: true },   // md
-            900: { slidesPerView: 2, spaceBetween: 34, centeredSlides: true },   // lg-s, lg-m
-            1024: { slidesPerView: 2.5, spaceBetween: 32, centeredSlides: true },  // lg
-            1200: { slidesPerView: 3, spaceBetween: 38, centeredSlides: true },  // lg-l
-            1280: { slidesPerView: 3, spaceBetween: 40, centeredSlides: true },  // xl
-            1536: { slidesPerView: 3, spaceBetween: 40, centeredSlides: true },  // 2xl
+            768: { slidesPerView: 2, spaceBetween: 28, centeredSlides: true },
+            900: { slidesPerView: 2, spaceBetween: 34, centeredSlides: true },
+            1024: { slidesPerView: 2.5, spaceBetween: 32, centeredSlides: true },
+            1200: { slidesPerView: 3, spaceBetween: 38, centeredSlides: true },
+            1280: { slidesPerView: 3, spaceBetween: 40, centeredSlides: true },
+            1536: { slidesPerView: 3, spaceBetween: 40, centeredSlides: true },
           }}
           className="mySwiper"
         >
@@ -106,7 +130,13 @@ export default function TestimonialsSlider() {
           background: #064d83; /* main brand */
         }
         .mySwiper {
-          padding-bottom: 5px; /* make sure bullets don't overlap */
+          padding-bottom: 50px; /* make sure bullets don't overlap */
+        }
+
+        /* make the built-in swiper navigation hidden because we use our custom buttons */
+        .swiper-button-next,
+        .swiper-button-prev {
+          display: none !important;
         }
       `}</style>
     </section>
