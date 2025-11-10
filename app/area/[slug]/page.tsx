@@ -46,11 +46,11 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tl from-blue-50 via-white to-pink-50 container mx-auto">
+    <div className="min-h-screen bg-gradient-to-tl from-blue-50 via-white to-pink-50 mx-auto">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 text-white py-24 relative overflow-hidden shadow-xl">
+      <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 text-white py-24 relative overflow-hidden shadow-xl rounded-b-3xl md:rounded-none">
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_70%_40%,#fff7,#00a2ff22_60%,transparent_80%)]" />
-        <div className="max-w-[1350px] mx-auto text-center relative z-10">
+        <div className="container mx-auto text-center relative z-10">
           <h1 className="text-3xl md:text-4xl lg:text-7xl font-extrabold mb-5 drop-shadow-lg tracking-tight flex items-center justify-center gap-3">
             <Diamond className="inline w-10 h-10 text-cyan-200 animate-spin-slow" />
             Properties in <span className="ml-2 text-yellow-300">{areaData.name}</span>
@@ -74,7 +74,7 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
       </div>
 
       {/* Properties Grid */}
-      <section className="py-20 bg-gradient-to-tl from-blue-50 via-white to-fuchsia-50 relative z-0">
+      <section className="container mx-auto py-20 bg-gradient-to-tl from-blue-50 via-white to-fuchsia-50 relative z-0">
         <div className="max-w-[1350px] mx-auto">
           <h2 className="text-4xl font-extrabold text-center mb-12 text-indigo-900 tracking-tight drop-shadow">
             <span className="bg-gradient-to-r from-indigo-600 via-sky-500 to-fuchsia-500 text-transparent bg-clip-text animate-gradient">
@@ -133,7 +133,9 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
           )}
         </div>
       </section>
+      <div className="container mx-auto">
       <FurnishedSections slug={slug as AreaSlug} />
+      </div>
     </div>
   );
 }

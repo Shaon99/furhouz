@@ -20,7 +20,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
   const whatsappUrl = "https://wa.me/?";
 
   return (
-    <div className="w-full max-w-[1350px] mx-auto px-4 py-6">
+    <div className="w-full max-w-[1350px] mx-auto py-6">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         {/* Left Side - Breadcrumb, Title, Location */}
         <div className="flex-1">
@@ -31,7 +31,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
             </Link>
             <span className="text-gray-400">/</span>
             <Link href="/property" className="text-gray-600 hover:text-gray-800 transition-colors">
-              property
+              Property
             </Link>
             <span className="text-gray-400">/</span>
             <span className="text-purple-600 font-medium">{property.title}</span>

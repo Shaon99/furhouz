@@ -34,7 +34,7 @@ export default function PrimeLocations() {
         </h2>
 
         {/* Intro */}
-        <p className="mt-4 leading-relaxed md:text-start text-black text-start">
+        <p className="mt-4 leading-relaxed md:text-start text-black text-justify md:text-start">
           Fully Furnished apartments are often located in desirable areas. It will be convenient for tourists and foreigners to explore new surroundings.
           Here’s the list of the 3 most attractive places to rent an apartment in Dhaka city.
         </p>
