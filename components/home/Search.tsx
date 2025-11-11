@@ -114,7 +114,7 @@ export default function Search({ onSearch, compact = false }: Props) {
                 whiteSpace: "nowrap",
               }}
             >
-              {place || "Explore a place"}
+              {place || "EXPLORE A PLACE"}
             </span>
             <span className="flex items-center justify-center ml-1">
               <ChevronDown
@@ -195,6 +195,7 @@ export default function Search({ onSearch, compact = false }: Props) {
             sf-search-btn btn rounded-full px-4 py-2 text-xs
             bg-brand-700 hover:bg-brand-800
             z-10
+            whitespace-nowrap
           "
           aria-label="Search"
           type="button"
@@ -277,7 +278,7 @@ export default function Search({ onSearch, compact = false }: Props) {
                   whiteSpace: "nowrap",
                 }}
               >
-                {place || "Explore a place"}
+                {place || "EXPLORE A PLACE"}
               </span>
               <span className="flex items-center justify-center ml-1">
                 <ChevronDown
