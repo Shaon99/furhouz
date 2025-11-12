@@ -2,23 +2,8 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-
-const LOCATIONS = [
-  "Gulshan",
-  "Banani",
-  "Baridhara",
-  "Bashundhara",
-  "Luxury Apartments",
-];
-
-// Map location names to slugs
-const LOCATION_TO_SLUG: Record<string, string> = {
-  "Gulshan": "gulshan",
-  "Banani": "banani",
-  "Baridhara": "baridhara",
-  "Bashundhara": "bashundhara",
-  "Luxury Apartments": "luxury-apartments",
-};
+import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
+import { SkeletonListItem } from "@/components/ui/skeletons";
 
 type Props = {
   onSearch?: (place: string) => void;
@@ -30,6 +15,7 @@ export default function Search({ onSearch, compact = false }: Props) {
   const [place, setPlace] = useState<string>("");
   const [error, setError] = useState<string>("");
   const popRef = useRef<HTMLDivElement>(null);
+  const { data: locations = [], isLoading } = useLocationQuery();
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -42,7 +28,8 @@ export default function Search({ onSearch, compact = false }: Props) {
   }, []);
 
   const handleSearch = () => {
-    if (!LOCATIONS.includes(place)) {
+    const locationExists = locations.some(loc => loc.name === place);
+    if (!locationExists) {
       setError("");
       setOpen(true);
       return;
@@ -139,47 +126,54 @@ export default function Search({ onSearch, compact = false }: Props) {
                 p-2
               "
             >
-              {LOCATIONS.map((loc) => {
-                const slug = LOCATION_TO_SLUG[loc];
-                const isAreaPage = slug && slug !== "luxury-apartments";
-                if (isAreaPage) {
+              {isLoading ? (
+                <div className="p-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonListItem key={i} showAvatar={false} />
+                  ))}
+                </div>
+              ) : (
+                locations.map((location) => {
+                  const isAreaPage = location.slug && location.slug !== "luxury-apartments";
+                  if (isAreaPage) {
+                    return (
+                      <Link
+                        key={location.id}
+                        href={`/area/${location.slug}`}
+                        role="option"
+                        aria-selected={place === location.name}
+                        onClick={() => handleSelect(location.name)}
+                        className="
+                          block w-full text-left px-4 py-3 rounded-xl
+                          hover:bg-[color:var(--brand-50)]
+                          focus:outline-none focus-visible:ring-2
+                          focus-visible:ring-brand-200
+                          text-[color:var(--foreground)]
+                        "
+                      >
+                        {location.name}
+                      </Link>
+                    );
+                  }
                   return (
-                    <Link
-                      key={loc}
-                      href={`/area/${slug}`}
+                    <button
+                      key={location.id}
                       role="option"
-                      aria-selected={place === loc}
-                      onClick={() => handleSelect(loc)}
+                      aria-selected={place === location.name}
+                      onClick={() => handleSelect(location.name)}
                       className="
-                        block w-full text-left px-4 py-3 rounded-xl
+                        w-full text-left px-4 py-3 rounded-xl
                         hover:bg-[color:var(--brand-50)]
                         focus:outline-none focus-visible:ring-2
                         focus-visible:ring-brand-200
                         text-[color:var(--foreground)]
                       "
                     >
-                      {loc}
-                    </Link>
+                      {location.name}
+                    </button>
                   );
-                }
-                return (
-                  <button
-                    key={loc}
-                    role="option"
-                    aria-selected={place === loc}
-                    onClick={() => handleSelect(loc)}
-                    className="
-                      w-full text-left px-4 py-3 rounded-xl
-                      hover:bg-[color:var(--brand-50)]
-                      focus:outline-none focus-visible:ring-2
-                      focus-visible:ring-brand-200
-                      text-[color:var(--foreground)]
-                    "
-                  >
-                    {loc}
-                  </button>
-                );
-              })}
+                })
+              )}
             </div>
           )}
           {error && (
@@ -207,6 +201,16 @@ export default function Search({ onSearch, compact = false }: Props) {
     );
   }
 
+  // Generate location text dynamically from API
+  const locationNames = locations
+    .filter(loc => loc.slug && loc.slug !== "luxury-apartments")
+    .slice(0, 4)
+    .map(loc => loc.name);
+  
+  const locationText = locationNames.length > 0
+    ? `Beautifully designed, fully furnished apartments in ${locationNames.join(", ")} to make you feel at home`
+    : "Beautifully designed, fully furnished apartments to make you feel at home";
+
   return (
     <section className="pt-10 md:pt-36">
       <div className="flex flex-col items-center text-center py-16 sm:py-24 mt-10 lg:mt-40">
@@ -214,8 +218,7 @@ export default function Search({ onSearch, compact = false }: Props) {
           Your furnished apartment ready to move
         </h1>
         <p className="lead text-white max-w-6xl mt-3 md:text-[18px] text-[16px] px-4 lg:px-0">
-          Beautifully designed, fully furnished apartments in Gulshan, Banani,
-          Baridhara and Bashundhara to make you feel at home
+          {locationText}
         </p>
 
         {/* Entire input/searchbar is clickable to open modal */}
@@ -303,47 +306,50 @@ export default function Search({ onSearch, compact = false }: Props) {
                   p-2
                 "
               >
-                {LOCATIONS.map((loc) => {
-                  const slug = LOCATION_TO_SLUG[loc];
-                  const isAreaPage = slug && slug !== "luxury-apartments";
-                  if (isAreaPage) {
+                {isLoading ? (
+                  <div className="px-4 py-3 text-sm text-gray-500">Loading...</div>
+                ) : (
+                  locations.map((location) => {
+                    const isAreaPage = location.slug && location.slug !== "luxury-apartments";
+                    if (isAreaPage) {
+                      return (
+                        <Link
+                          key={location.id}
+                          href={`/area/${location.slug}`}
+                          role="option"
+                          aria-selected={place === location.name}
+                          onClick={() => handleSelect(location.name)}
+                          className="
+                            block w-full text-left px-4 py-3 rounded-xl
+                            hover:bg-[color:var(--brand-50)]
+                            focus:outline-none focus-visible:ring-2
+                            focus-visible:ring-brand-200
+                            text-[color:var(--foreground)]
+                          "
+                        >
+                          {location.name}
+                        </Link>
+                      );
+                    }
                     return (
-                      <Link
-                        key={loc}
-                        href={`/area/${slug}`}
+                      <button
+                        key={location.id}
                         role="option"
-                        aria-selected={place === loc}
-                        onClick={() => handleSelect(loc)}
+                        aria-selected={place === location.name}
+                        onClick={() => handleSelect(location.name)}
                         className="
-                          block w-full text-left px-4 py-3 rounded-xl
+                          w-full text-left px-4 py-3 rounded-xl
                           hover:bg-[color:var(--brand-50)]
                           focus:outline-none focus-visible:ring-2
                           focus-visible:ring-brand-200
                           text-[color:var(--foreground)]
                         "
                       >
-                        {loc}
-                      </Link>
+                        {location.name}
+                      </button>
                     );
-                  }
-                  return (
-                    <button
-                      key={loc}
-                      role="option"
-                      aria-selected={place === loc}
-                      onClick={() => handleSelect(loc)}
-                      className="
-                        w-full text-left px-4 py-3 rounded-xl
-                        hover:bg-[color:var(--brand-50)]
-                        focus:outline-none focus-visible:ring-2
-                        focus-visible:ring-brand-200
-                        text-[color:var(--foreground)]
-                      "
-                    >
-                      {loc}
-                    </button>
-                  );
-                })}
+                  })
+                )}
               </div>
             )}
             {error && (

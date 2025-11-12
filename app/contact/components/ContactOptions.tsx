@@ -2,53 +2,58 @@
 
 import { KeyRound } from "lucide-react";
 import Link from "next/link";
+import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
 
 type Card = {
   title: string;
   desc: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   slug: string;
   highlight?: boolean;
 };
 
-const CARDS: Card[] = [
-  {
-    title: "I’m an Owner",
-    desc:
-      "Curious about FurHouz? Have a question about your lease? Call or e-mail us.",
-    phone: "+88 01616 171 171",
-    email: "nasrullah@rentsincorporation.com",
-    slug: "owner",
-  },
-  {
-    title: "I’m a Corporate",
-    desc:
-      "Questions about your stay? Need anything in your home? Call or e-mail us.",
-    phone: "+88 01616 171 171",
-    email: "nasrullah@rentsincorporation.com",
-    slug: "corporate",
-    highlight: true,
-  },
-  {
-    title: "I’m a Tenant",
-    desc:
-      "Do you have any questions about the apartment, need help or would you like to know more about our services? Call us through the channels below.",
-    phone: "+88 01616 171 171",
-    email: "nasrullah@rentsincorporation.com",
-    slug: "tenant",
-  },
-  {
-    title: "I want to know more",
-    desc:
-      "Contact us with any questions about how to rent an apartment with us, deadlines, payments, contracts and much more.",
-    phone: "+88 01616 171 171",
-    email: "nasrullah@rentsincorporation.com",
-    slug: "want-know",
-  },
-];
-
 export default function ContactOptions() {
+  const { data: settings } = useSettingsQuery();
+  
+  const phone = settings?.phone_number;
+  const email = settings?.email_address;
+
+  const CARDS: Card[] = [
+    {
+      title: "I'm an Owner",
+      desc:
+        "Curious about FurHouz? Have a question about your lease? Call or e-mail us.",
+      phone: phone,
+      email: email,
+      slug: "owner",
+    },
+    {
+      title: "I'm a Corporate",
+      desc:
+        "Questions about your stay? Need anything in your home? Call or e-mail us.",
+      phone: phone,
+      email: email,
+      slug: "corporate",
+      highlight: true,
+    },
+    {
+      title: "I'm a Tenant",
+      desc:
+        "Do you have any questions about the apartment, need help or would you like to know more about our services? Call us through the channels below.",
+      phone: phone,
+      email: email,
+      slug: "tenant",
+    },
+    {
+      title: "I want to know more",
+      desc:
+        "Contact us with any questions about how to rent an apartment with us, deadlines, payments, contracts and much more.",
+      phone: phone,
+      email: email,
+      slug: "want-know",
+    },
+  ];
   return (
     <section className="py-10 lg:py-20 container mx-auto bg-gradient-to-br from-blue-50 via-white to-sky-100 transition-all">
       <div className="mx-auto w-full max-w-[1350px]">
@@ -91,13 +96,19 @@ export default function ContactOptions() {
                 <p className="mt-3 text-sm leading-relaxed text-neutral-600 text-center">{c.desc}</p>
 
                 {/* Divider + contacts */}
-                <div className="mt-6 border-t border-blue-100 pt-4 text-center">
-                  <p className="text-base font-semibold text-blue-700 flex justify-center items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="inline h-5 w-5 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h2l.4 2M7 15h10l4-8H5.4M7 15l-1.5 7H5M7 15l1.5-7H19M18.5 19a2.5 2.5 0 11-5 0"/></svg>
-                    {c.phone}
-                  </p>
-                  <p className="mt-2 text-sm text-blue-500 underline underline-offset-2 break-all cursor-pointer">{c.email}</p>
-                </div>
+                {(c.phone || c.email) && (
+                  <div className="mt-6 border-t border-blue-100 pt-4 text-center">
+                    {c.phone && (
+                      <p className="text-base font-semibold text-blue-700 flex justify-center items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="inline h-5 w-5 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h2l.4 2M7 15h10l4-8H5.4M7 15l-1.5 7H5M7 15l1.5-7H19M18.5 19a2.5 2.5 0 11-5 0"/></svg>
+                        {c.phone}
+                      </p>
+                    )}
+                    {c.email && (
+                      <p className="mt-2 text-sm text-blue-500 underline underline-offset-2 break-all cursor-pointer">{c.email}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Button pinned bottom */}
                 <div className="mt-auto pt-6 flex justify-center">

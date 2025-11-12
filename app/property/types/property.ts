@@ -10,6 +10,8 @@ export type Property = {
     beds: number;
     baths: number;
     images: string[];
+    typeId?: number;
+    typeTitle?: string;
     // Additional fields for detailed property information
     garage?: number;
     balcony?: number;

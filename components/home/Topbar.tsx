@@ -15,6 +15,8 @@ import {
 
 import { Menu } from "lucide-react";
 import Search from './Search';
+import { useSettingsQuery } from '@/hooks/queries/useSettingsQuery';
+import { SkeletonLogo } from '@/components/ui/skeletons';
 
 const NAV_LINKS = [
   { href: "/property", label: "APARTMENTS" },
@@ -27,6 +29,7 @@ const Topbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isLayoutUsage = pathname !== "/";
+  const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
 
   useEffect(() => {
     // Set initial scroll state based on current scroll position
@@ -86,7 +89,11 @@ const Topbar = () => {
         {/* Left: Logo - hidden on mobile/md when scrolled */}
         <div className={`flex items-center min-w-[120px] ${showSearchOnly ? 'hidden lg:flex' : ''}`}>
           <Link href="/">
-            <Image src="/logo.png" alt="Logo" width={150} height={150} priority />
+            {isLoadingSettings ? (
+              <SkeletonLogo width={150} height={50} />
+            ) : settings?.logo ? (
+              <Image src={settings.logo} alt={settings.site_name || "Logo"} width={150} height={150} priority />
+            ) : null}
           </Link>
         </div>
 
@@ -126,7 +133,11 @@ const Topbar = () => {
               <SheetHeader>
                 <div className="flex items-center p-4 border-b">
                   <Link href="/" className="flex items-center gap-2" tabIndex={-1}>
-                    <Image src="/logo.png" alt="Logo" width={100} height={100} priority />
+                    {isLoadingSettings ? (
+                      <SkeletonLogo width={100} height={40} />
+                    ) : settings?.logo ? (
+                      <Image src={settings.logo} alt={settings.site_name || "Logo"} width={100} height={100} priority />
+                    ) : null}
                   </Link>
                   {/* Single cross icon, not doubled */}
                   <SheetClose asChild>
