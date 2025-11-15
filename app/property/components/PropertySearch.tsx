@@ -9,14 +9,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
 
-const locations = [
-  "Gulshan",
-  "Banani",
-  "Baridhara",
-  "Bashundhara",
-  "Luxury Apartments",
-];
 const priceRanges = [
   "50000-100000",
   "100001-150000",
@@ -35,6 +29,7 @@ export default function PropertySearch() {
   const [propertyId, setPropertyId] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
+  const { data: locations = [], isLoading: locationsLoading } = useLocationQuery();
 
   const handleSearch = () => {
     console.log({
@@ -78,15 +73,21 @@ export default function PropertySearch() {
               />
             </SelectTrigger>
             <SelectContent className="rounded-lg shadow-xl bg-white border-2 border-sky-200">
-              {locations.map((loc) => (
-                <SelectItem
-                  value={loc}
-                  key={loc}
-                  className="px-4 py-2 text-base hover:bg-sky-50 hover:text-sky-700 cursor-pointer transition-all"
-                >
-                  {loc}
+              {locationsLoading ? (
+                <SelectItem value="loading" disabled>
+                  Loading...
                 </SelectItem>
-              ))}
+              ) : (
+                locations.map((location) => (
+                  <SelectItem
+                    value={location.name}
+                    key={location.id}
+                    className="px-4 py-2 text-base hover:bg-sky-50 hover:text-sky-700 cursor-pointer transition-all"
+                  >
+                    {location.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

@@ -71,6 +71,13 @@ export default function PropertyCard({ p }: { p: Property }) {
               <MapPin className="h-3.5 w-3.5 text-slate-400" />
               <span className="line-clamp-1">{p.road}</span>
             </div>
+            {p.typeTitle && (
+              <div className="mt-1.5">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-sky-100 text-sky-700 border border-sky-200">
+                  {p.typeTitle}
+                </span>
+              </div>
+            )}
           </Link>
         </div>
 

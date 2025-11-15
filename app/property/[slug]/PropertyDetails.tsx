@@ -11,10 +11,8 @@ export default function PropertyDetails({ property }: { property: Property }) {
       <PropertyHeader property={property} />
       
       {/* Main Content */}
-      <section className="w-full max-w-[1350px] mx-auto">
-        <div className="mb-4 rounded-xl overflow-hidden">
-          <Gallery images={property.images} property={property} />
-        </div>
+      <section className="w-full max-w-[1350px] mx-auto px-4 xl:px-6">
+        <Gallery images={property.images} property={property} />
       </section>
     </div>
   );

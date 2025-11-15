@@ -67,9 +67,23 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
       </section>
 
       {/* Property Search */}
-      <div className="max-w-[1350px] mx-auto px-3 sm:px-6 -mt-12 z-10 relative">
-        <div className="shadow-2xl bg-white rounded-2xl p-6 md:p-10 ring-1 ring-indigo-100">
-          <PropertySearch />
+      <div className="max-w-[1350px] mx-auto px-2 sm:px-4 md:px-6 -mt-16 z-10 relative">
+        <div className="shadow-2xl bg-white rounded-2xl p-3 sm:p-5 md:p-8 lg:p-10 ring-1 ring-indigo-100 h-auto md:h-[170px] flex items-center justify-center">
+          <div className="
+              w-full
+              -mt-14 sm:-mt-20 md:-mt-[88px]
+              mx-auto
+              flex
+              flex-col
+              md:flex-row 
+              items-stretch
+              md:items-center
+              justify-center
+              gap-3
+              md:gap-6
+              ">
+            <PropertySearch />
+          </div>
         </div>
       </div>
 

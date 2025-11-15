@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
+import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
+import { SkeletonLogo } from "@/components/ui/skeletons";
 
 const FormSchema = z.object({
   name: z.string().min(2, "Enter full name"),
@@ -23,11 +25,12 @@ type FormValues = z.infer<typeof FormSchema>;
 
 export default function EnquiryForm({
   defaultMessage,
-  whatsappNumber = "+8801616171171"
+  whatsappNumber
 }: {
   defaultMessage: string;
   whatsappNumber?: string;
 }) {
+  const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
   const {
     register,
     handleSubmit,
@@ -42,21 +45,27 @@ export default function EnquiryForm({
     }
   });
 
+  const waNumber = whatsappNumber || settings?.whatsapp_number;
+
   const onSubmit = async (data: FormValues) => {
     // TODO: hit your API endpoint
     console.log("ENQUIRY_FORM_DATA", data);
     alert("Message sent (demo). Replace with real API call.");
   };
 
-  const waLink = `https://api.whatsapp.com/send?phone=${encodeURIComponent(
-    whatsappNumber
-  )}&text=${encodeURIComponent(defaultMessage)}`;
+  const waLink = waNumber 
+    ? `https://api.whatsapp.com/send?phone=${encodeURIComponent(waNumber)}&text=${encodeURIComponent(defaultMessage)}`
+    : "#";
 
   return (
-   <div className="w-full max-w-[1350px] mx-auto bg-slate-50 rounded-xl p-5 md:p-6 shadow-sm">
+     <div className="w-full max-w-[1350px] mx-auto bg-slate-50 rounded-xl p-5 md:p-6 shadow-sm">
      <aside className="p-5 md:p-6  sticky top-24 w-full max-w-5xl mx-auto">
       <div className="items-center gap-2">
-        <Image src="/logo.png" alt="furhouz" width={120} height={40} />
+        {isLoadingSettings ? (
+          <SkeletonLogo width={120} height={40} />
+        ) : settings?.logo ? (
+          <Image src={settings.logo} alt={settings.site_name || "furhouz"} width={120} height={40} />
+        ) : null}
         <div className="font-medium text-sm text-slate-500 mt-2">
           Enquiry About this Property.
         </div>
@@ -94,12 +103,14 @@ export default function EnquiryForm({
           <Button type="submit" disabled={isSubmitting} className="px-6">
             Send Message
           </Button>
-          <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-            <a href={waLink} target="_blank" rel="noopener">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Whatsapp
-            </a>
-          </Button>
+          {waNumber && (
+            <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+              <a href={waLink} target="_blank" rel="noopener">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Whatsapp
+              </a>
+            </Button>
+          )}
         </div>
       </form>
     </aside> 

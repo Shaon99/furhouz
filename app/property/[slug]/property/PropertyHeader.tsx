@@ -20,7 +20,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
   const whatsappUrl = "https://wa.me/?";
 
   return (
-    <div className="w-full max-w-[1350px] mx-auto py-6">
+    <div className="w-full max-w-[1350px] mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         {/* Left Side - Breadcrumb, Title, Location */}
         <div className="flex-1">

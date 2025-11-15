@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/thumbs";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Swiper as SwiperClass } from "swiper";
 import { Property } from "../../types/property";
@@ -90,15 +90,41 @@ export default function Gallery({ images, property }: { images: string[]; proper
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const thumbSliderRef = useRef<SwiperClass | null>(null);
   const thumbsToShow = useThumbsToShow();
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const isScrollingRef = useRef(false);
 
   const handlePrev = () => thumbSliderRef.current?.slidePrev();
   const handleNext = () => thumbSliderRef.current?.slideNext();
 
+  const scrollToSection = (sectionId: string) => {
+    setActiveTab(sectionId);
+    isScrollingRef.current = true;
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 120; // Offset for sticky header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+
+      // Reset scrolling flag after scroll completes
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 1000);
+    }
+  };
+
   return (
     <div className="w-full mx-auto">
-      {/* Main gallery */}
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        <div className="col-span-1 xl:col-span-8">
+          {/* Main gallery */}
       <div
-        className="rounded-2xl overflow-hidden shadow-xl border-[2.5px] border-blue-200 mb-3 relative group"
+        className="col-span-1 xl:col-span-8 rounded-2xl overflow-hidden shadow-xl border-[2.5px] border-blue-200 mb-3 relative group"
         style={{
           aspectRatio: "16/7",
           width: "100%",
@@ -184,8 +210,8 @@ export default function Gallery({ images, property }: { images: string[]; proper
                 640:  { slidesPerView: Math.min(thumbsToShow, 5), spaceBetween: 8 },
                 768:  { slidesPerView: 5,   spaceBetween: 10 },
                 1024: { slidesPerView: 5,   spaceBetween: 7 },
-                1280: { slidesPerView: 5,   spaceBetween: 5 },
-                1536: { slidesPerView: 5,   spaceBetween: 4 },
+                1280: { slidesPerView: 4,   spaceBetween: 4 },
+                1536: { slidesPerView: 4,   spaceBetween: 4 },
               }}
               style={{
                 minHeight: 60,
@@ -236,17 +262,83 @@ export default function Gallery({ images, property }: { images: string[]; proper
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="w-full my-6">
+        <div className="flex rounded-lg bg-blue-500 p-1 overflow-x-auto">
+          <button
+            onClick={() => scrollToSection("overview")}
+            className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+              activeTab === "overview"
+                ? "bg-white text-blue-600 shadow-sm border border-blue-300"
+                : "text-white hover:bg-blue-600"
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => scrollToSection("address")}
+            className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+              activeTab === "address"
+                ? "bg-white text-blue-600 shadow-sm border border-blue-300"
+                : "text-white hover:bg-blue-600"
+            }`}
+          >
+            Address
+          </button>
+          <button
+            onClick={() => scrollToSection("details")}
+            className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+              activeTab === "details"
+                ? "bg-white text-blue-600 shadow-sm border border-blue-300"
+                : "text-white hover:bg-blue-600"
+            }`}
+          >
+            Details
+          </button>
+          <button
+            onClick={() => scrollToSection("features")}
+            className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+              activeTab === "features"
+                ? "bg-white text-blue-600 shadow-sm border border-blue-300"
+                : "text-white hover:bg-blue-600"
+            }`}
+          >
+            Features
+          </button>
+        </div>
+      </div>
+
       {/* All details below gallery */}
       <div className="w-full px-0 py-6">
-        <Overview p={property} />
-        <Address p={property} />
-        <Details p={property} />
-        <FeaturesAndAmenities p={property} />
+        <div id="overview">
+          <Overview p={property} />
+        </div>
+        <div id="address">
+          <Address p={property} />
+        </div>
+        <div id="details">
+          <Details p={property} />
+        </div>
+        <div id="features">
+          <FeaturesAndAmenities p={property} />
+        </div>
         <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} />
-        <div className="mt-6">
+        <div className="mt-6 xl:hidden">
           <RelatedAppartment />
         </div>
       </div>
+        </div>
+        <div className="col-span-1 xl:col-span-4">
+          <div className="sticky top-24">
+            <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} />
+          </div>
+        </div>
+      </div>
+       
+      <div className="mt-6 hidden xl:block">
+          <RelatedAppartment />
+      </div>
+     
       
       <style jsx global>{`
         ${GALLERY_HEIGHT_CSS}

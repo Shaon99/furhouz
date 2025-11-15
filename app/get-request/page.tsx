@@ -4,6 +4,8 @@ import Image from "next/image";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
+import { SkeletonLogo } from "@/components/ui/skeletons";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function EnquiryPage() {
+  const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", phone: "", message: "" },
@@ -49,13 +52,17 @@ export default function EnquiryPage() {
         <CardContent className="p-6 sm:p-10">
           <div className="flex flex-col items-start sm:items-center gap-2 sm:gap-3 text-center sm:text-left">
             <div className="w-[180px] sm:self-start">
-              <Image
-                src="/logo.png" 
-                alt="Logo"
-                width={360}
-                height={80}
-                priority
-              />
+              {isLoadingSettings ? (
+                <SkeletonLogo width={180} height={80} />
+              ) : settings?.logo ? (
+                <Image
+                  src={settings.logo} 
+                  alt={settings.site_name || "Logo"}
+                  width={360}
+                  height={80}
+                  priority
+                />
+              ) : null}
             </div>
             <p className="mt-2 text-sm text-[#0A0D12]/70 sm:self-start">
               Enquiry About this Property.

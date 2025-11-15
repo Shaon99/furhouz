@@ -3,27 +3,36 @@
 import Image from 'next/image';
 import React from 'react';
 import Search from '../home/Search';
+import { useBannerQuery } from '@/hooks/queries/useBannerQuery';
+import { SkeletonHeader } from '@/components/ui/skeletons';
 
-interface HeaderProps {
-  className?: string;
-  imageClassName?: string;
-}
 
-export default function Header({
-  className = "",
-  imageClassName = "",
-}: HeaderProps) {
+export default function Header() {
+
+  const { data: bannerData, isLoading } = useBannerQuery();
+  
+  const bannerImage = bannerData 
+    ? bannerData.find(banner => banner.id === 1)?.image || ''
+    : '';
+
   return (
-    <header className={`relative w-full h-[80vh] md:h-screen overflow-hidden ${className}`}>
+    <header className="relative w-full h-[80vh] md:h-screen overflow-hidden">
+      {/* Loading Skeleton */}
+      {isLoading && (
+        <SkeletonHeader className="absolute inset-0 h-full" />
+      )}
+
       {/* Background Image */}
-      <Image
-        src='/hero.jpeg'
-        alt="Header background"
-        fill
-        className={`object-fill w-full h-[80%] md:h-full ${imageClassName}`}
-        priority
-        sizes="100vw"
-      />
+      {!isLoading && bannerImage && (
+        <Image
+          src={bannerImage}
+          alt="Header background"
+          fill
+          className="object-fill w-full h-[80%] md:h-full"
+          priority
+          sizes="100vw"
+        />
+      )}
 
       <div className="absolute inset-0 z-10">
         <Search />
