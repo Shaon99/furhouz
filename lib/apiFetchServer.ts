@@ -1,5 +1,5 @@
 // Server-side API fetch (for use in server components)
-export async function apiFetchServer<T = any>(endpoint: string): Promise<T> {
+export async function apiFetchServer<T = unknown>(endpoint: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (!baseUrl) throw new Error("Backend URL is not set");
 

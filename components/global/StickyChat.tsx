@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image";
+
 export function WhatsAppHelpWidget() {
   const handleWhatsAppClick = () => {
     const phoneNumber = "1234567890";
@@ -18,7 +20,7 @@ export function WhatsAppHelpWidget() {
         Need Help? Chat with us
       </span>
       <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
-        <img src="/WhatsApp.webp" alt="Whatsapp" width={44} height={44} />
+        <Image src="/WhatsApp.webp" alt="Whatsapp" width={44} height={44} />
       </div>
       <style>
         {`
