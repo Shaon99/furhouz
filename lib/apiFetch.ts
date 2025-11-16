@@ -1,8 +1,8 @@
 class HttpError extends Error {
     status: number;
-    body?: any;
+    body?: unknown;
     retryAfter?: number;
-    constructor(message: string, status: number, body?: any, retryAfter?: number) {
+    constructor(message: string, status: number, body?: unknown, retryAfter?: number) {
       super(message);
       this.name = "HttpError";
       this.status = status;
@@ -21,8 +21,17 @@ class HttpError extends Error {
       return null;
     }
   }
+
+  function getErrorMessage(parsed: unknown): string | undefined {
+    if (parsed && typeof parsed === "object") {
+      const obj = parsed as Record<string, unknown>;
+      if (typeof obj.message === "string") return obj.message;
+      if (typeof obj.error === "string") return obj.error;
+    }
+    return undefined;
+  }
   
-  export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  export async function apiFetch<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     if (!baseUrl) throw new Error("Backend URL is not set");
   
@@ -54,7 +63,7 @@ class HttpError extends Error {
     const isJson = contentType.includes("application/json");
   
     const rawText = await res.text();
-    let parsed: any = null;
+    let parsed: unknown = null;
     if (isJson) {
       try { parsed = rawText ? JSON.parse(rawText) : null; } catch { parsed = null; }
     }
@@ -78,7 +87,7 @@ class HttpError extends Error {
         const retryAfterHeader = res.headers.get("retry-after");
         const retryAfter = retryAfterHeader ? Number(retryAfterHeader) : undefined;
         const message =
-          (parsed && (parsed.message || parsed.error)) ||
+          getErrorMessage(parsed) ||
           "Too many requests. Please try again shortly.";
         throw new HttpError(
           retryAfter ? `${message} Try again in ${retryAfter}s.` : message,
@@ -89,7 +98,7 @@ class HttpError extends Error {
       }
   
       let message =
-        (parsed && (parsed.message || parsed.error)) ||
+        getErrorMessage(parsed) ||
         res.statusText ||
         "Request failed";
   
