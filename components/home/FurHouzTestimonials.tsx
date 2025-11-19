@@ -7,54 +7,36 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-
-type Testimonial = {
-  quote: string;
-  name: string;
-  role: string;
-};
-
-const DATA: Testimonial[] = [
-  // ... (সঠিকভাবে তোমার আগের DATA এখানে থাকবে)
-  {
-    quote:
-      "FurHouz’s management is very good, professional and very accommodating. As for the apartment, they provided good options according to my preference and choice of locations, and I got a great apartment by the way. Overall, their service is wonderful, I’m really happier”.",
-    name: "Hamzari Sabil,",
-    role: "Brunei Embassy, Dhaka.",
-  },
-  {
-    quote:
-      "Loved everything about FurHouz. The staff made me feel at home. Would definitely recommend to everyone looking for a home away from home”",
-    name: "Wubin,",
-    role: "Staller Technology PTE.",
-  },
-  {
-    quote:
-      "Very clean, spacious and modern furnished apartment, with everything you need for a trouble-free stay. Reliable and comfortable stay here”.",
-    name: "Christian Muller,",
-    role: "Germany, Businessman.",
-  },
-  {
-    quote:
-      "Apartments are comfortable, staff is very friendly and helpful. Whenever we had a specific request, the response was positive and swift. Highly recommended for your business trips or long term stay in Dhaka”.",
-    name: "Johanne Eriksen Saltnes,",
-    role: "Intern – Norway Embassy, Dhaka",
-  },
-  {
-    quote:
-      'Clean, well-maintained, condo in a professionally run building. Everything you need is here. I had a very nice stay here and would recommend it to anyone',
-    name: "Uma Devi,",
-    role: "Indian, Fichtner Consulting Engineers.",
-  },
-  {
-    quote:
-      "I had a great stay at FurHouz’s apartment. Apartment is very clean, pics are accurate. Would happily stay there again or recommend to others. Great central location in Dhaka, secure building with very helpful concierge staff, and easy to communicate with and always replied very quickly",
-    name: "Raja Sockalingan,",
-    role: "Singapore, IE – MRT 5.",
-  },
-];
+import { useTestimonialQuery } from "@/hooks/queries/useTestimonialQuery";
+import { SkeletonCard } from "@/components/ui/skeletons";
 
 export default function TestimonialsSlider() {
+  const { data, isLoading } = useTestimonialQuery();
+
+  if (isLoading) {
+    return (
+      <section className="pb-24 mx-auto w-full md:w-[88%] lg:w-[85%] xl:w-[80%] max-w-[1400px]">
+        <div className="container mx-auto">
+          <div className="h-12 w-64 bg-gray-200 rounded mb-4 animate-pulse" />
+          <div className="h-6 w-96 bg-gray-200 rounded mb-10 animate-pulse" />
+        </div>
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} showImage={false} lines={4} className="h-[400px]" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (!data || data.length === 0) return null;
+
+  const testimonials = data.map((t) => ({
+    quote: t.message || t.designation || "",
+    name: t.name,
+    role: t.designation || "",
+  }));
+
   return (
     <section className="pb-24 mx-auto w-full md:w-[88%] lg:w-[85%] xl:w-[80%] max-w-[1400px]">
       {/* Heading */}
@@ -63,7 +45,7 @@ export default function TestimonialsSlider() {
           Every Stay Has A Story
         </h2>
         <p className="pb-10 text-base md:text-[18px] text-gray-600 lg:text-lg xl:text-lg">
-          It’s hard to explain what makes FurHouz so special. Unless, of course, you’re one of our guests.
+          It&apos;s hard to explain what makes FurHouz so special. Unless, of course, you&apos;re one of our guests.
         </p>
       </div>
 
@@ -93,7 +75,7 @@ export default function TestimonialsSlider() {
           slidesPerView={3}
           spaceBetween={40}
           centeredSlides
-          loop
+          loop={testimonials.length > 1}
           freeMode
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
@@ -112,7 +94,7 @@ export default function TestimonialsSlider() {
           }}
           className="mySwiper"
         >
-          {DATA.map((t, i) => (
+          {testimonials.map((t, i) => (
             <SwiperSlide key={i} className="flex" style={{ height: "100%" }}>
               <Card {...t} />
             </SwiperSlide>
@@ -143,7 +125,7 @@ export default function TestimonialsSlider() {
   );
 }
 
-function Card({ quote, name, role }: Testimonial) {
+function Card({ quote, name, role }: { quote: string; name: string; role: string }) {
   return (
     <div
       className={`

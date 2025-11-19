@@ -92,6 +92,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
   const thumbsToShow = useThumbsToShow();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const isScrollingRef = useRef(false);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
   const handlePrev = () => thumbSliderRef.current?.slidePrev();
   const handleNext = () => thumbSliderRef.current?.slideNext();
@@ -143,22 +144,26 @@ export default function Gallery({ images, property }: { images: string[]; proper
           }}
           grabCursor={true}
         >
-          {images.map((src, i) => (
-            <SwiperSlide key={i} className="w-full h-full">
-              <Image
-                src={src}
-                alt={`Property image ${i + 1}`}
-                fill
-                priority={i === 0}
-                className="object-fill w-full h-full"
-                draggable={false}
-                style={{
-                  transition: "transform .4s",
-                  borderRadius: "1rem"
-                }}
-              />
-            </SwiperSlide>
-          ))}
+          {images.map((src, i) => {
+            const imageSrc = failedImages.has(i) ? '/placeholder.png' : src;
+            return (
+              <SwiperSlide key={i} className="w-full h-full">
+                <Image
+                  src={imageSrc}
+                  alt={`Property image ${i + 1}`}
+                  fill
+                  priority={i === 0}
+                  className="object-fill w-full h-full"
+                  draggable={false}
+                  onError={() => setFailedImages(prev => new Set(prev).add(i))}
+                  style={{
+                    transition: "transform .4s",
+                    borderRadius: "1rem"
+                  }}
+                />
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
 
@@ -221,42 +226,46 @@ export default function Gallery({ images, property }: { images: string[]; proper
                 paddingRight: 4,
               }}
             >
-              {images.map((src, i) => (
-                <SwiperSlide key={i}>
-                  <div
-                    className="thumb-slide mx-auto flex items-center justify-center"
-                    style={{
-                      height: "52px",
-                      maxHeight: "85px",
-                      minWidth: "86px",
-                      background: "#fff",
-                      borderRadius: "0.75rem",
-                      border: "1.5px solid #e0eefa",
-                      overflow: "hidden",
-                      boxShadow: "0px 1.5px 7px #e0eefa60",
-                      transition: "box-shadow 0.2s, border-color 0.2s, width 0.23s",
-                      aspectRatio: "16/9",
-                      width: "100px",
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={src}
-                      alt={`Thumbnail ${i + 1}`}
-                      className="object-cover w-full h-full transition-transform duration-200"
-                      draggable={false}
-                      loading={i > 2 ? "lazy" : "eager"}
+              {images.map((src, i) => {
+                const thumbSrc = failedImages.has(i) ? '/placeholder.png' : src;
+                return (
+                  <SwiperSlide key={i}>
+                    <div
+                      className="thumb-slide mx-auto flex items-center justify-center"
                       style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "0.60rem",
-                        border: "2.5px solid transparent",
-                        objectFit: "cover",
+                        height: "52px",
+                        maxHeight: "85px",
+                        minWidth: "86px",
+                        background: "#fff",
+                        borderRadius: "0.75rem",
+                        border: "1.5px solid #e0eefa",
+                        overflow: "hidden",
+                        boxShadow: "0px 1.5px 7px #e0eefa60",
+                        transition: "box-shadow 0.2s, border-color 0.2s, width 0.23s",
+                        aspectRatio: "16/9",
+                        width: "100px",
                       }}
-                    />
-                  </div>
-                </SwiperSlide>
-              ))}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={thumbSrc}
+                        alt={`Thumbnail ${i + 1}`}
+                        className="object-cover w-full h-full transition-transform duration-200"
+                        draggable={false}
+                        loading={i > 2 ? "lazy" : "eager"}
+                        onError={() => setFailedImages(prev => new Set(prev).add(i))}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "0.60rem",
+                          border: "2.5px solid transparent",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  </SwiperSlide>
+                );
+              })}
             </Swiper>
           </div>
         </div>

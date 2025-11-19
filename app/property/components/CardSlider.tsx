@@ -4,40 +4,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, A11y, Autoplay } from "swiper/modules";
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-/**
- * Adds clickable slug routing overlay on top of property images.
- * Now expects both images and slug as props.
- */
 export default function CardSlider({ images, slug }: { images: string[]; slug: string }) {
   const uniqueId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
   const prevButtonRef = useRef<HTMLButtonElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
-  const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  // Fix navigation issue: Re-initialize navigation on Swiper after refs are set and swiper is ready
+  const swiperRef = useRef<any>(null);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+
   useEffect(() => {
-    if (
-      swiperRef.current &&
-      swiperRef.current.params &&
-      prevButtonRef.current &&
-      nextButtonRef.current
-    ) {
+    if (swiperRef.current?.params?.navigation && prevButtonRef.current && nextButtonRef.current) {
       swiperRef.current.params.navigation.prevEl = prevButtonRef.current;
       swiperRef.current.params.navigation.nextEl = nextButtonRef.current;
-
-      // Destroy previous navigation, then re-init with current refs
-      if (swiperRef.current.navigation) {
-        swiperRef.current.navigation.destroy();
-        swiperRef.current.navigation.init();
-        swiperRef.current.navigation.update();
-      }
+      swiperRef.current.navigation?.destroy();
+      swiperRef.current.navigation?.init();
+      swiperRef.current.navigation?.update();
     }
-  }, [uniqueId]); // dependencies: uniqueId enough for new render
+  }, [uniqueId]);
 
   return (
     <div className="relative group">
@@ -60,28 +48,30 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         }}
         className="rounded-xl overflow-hidden shadow-xl"
       >
-        {images.map((src, i) => (
-          <SwiperSlide key={i}>
-            <div className="relative aspect-[16/12] w-full overflow-hidden">
-              <Link
-                href={`/property/${slug}`}
-                className="absolute inset-0 z-10"
-                aria-label="View property details"
-                tabIndex={0}
-                // prevent overlay from blocking swiper nav buttons with pointer-events
-                style={{ pointerEvents: "auto" }}
-              />
-              <Image
-                src={src}
-                alt={`Property image ${i + 1}`}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(min-width:1280px) 280px, (min-width:768px) 33vw, 100vw"
-                priority={i === 0}
-              />
-            </div>
-          </SwiperSlide>
-        ))}
+        {(images.length > 0 ? images : ['/placeholder.png']).map((src, i) => {
+          const imageSrc = failedImages.has(i) ? '/placeholder.png' : src;
+          return (
+            <SwiperSlide key={i}>
+              <div className="relative aspect-[16/12] w-full overflow-hidden bg-slate-100">
+                <Link
+                  href={`/property/${slug}`}
+                  className="absolute inset-0 z-10"
+                  aria-label="View property details"
+                  style={{ pointerEvents: "auto" }}
+                />
+                <Image
+                  src={imageSrc}
+                  alt={`Property image ${i + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  sizes="(min-width:1280px) 280px, (min-width:768px) 33vw, 100vw"
+                  priority={i === 0}
+                  onError={() => setFailedImages(prev => new Set(prev).add(i))}
+                />
+              </div>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
 
       {/* Navigation buttons fixed for smoother sliding */}

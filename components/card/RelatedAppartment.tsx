@@ -2,11 +2,13 @@
 
 import { BedDouble, Bath, Ruler, Mail, MapPin, Star, Heart } from "lucide-react";
 import CardSlider from "@/app/property/components/CardSlider";
+import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { Property } from "@/app/property/types/property";
-import { PROPERTIES } from "@/app/property/data/properties";
+import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
+import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
   const [isFavorited, setIsFavorited] = useState(false);
@@ -126,7 +128,12 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
 };
 
 const RelatedAppartment: React.FC = () => {
-  const relatedProperties = PROPERTIES.slice(0, 4)
+  const { data: properties = [], isLoading } = usePropertiesQuery(1);
+  
+  const relatedProperties = useMemo(() => {
+    if (properties.length === 0) return [];
+    return properties.slice(0, 4).map(mapApiPropertyToProperty);
+  }, [properties]);
 
   return (
     <div className="w-full py-8 max-w-[1350px] mx-auto px-1">
@@ -138,11 +145,20 @@ const RelatedAppartment: React.FC = () => {
         </h2>
       </div>
 
-      {/* Property Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {relatedProperties.map((property) => (
-          <PropertyCard key={property.id} p={property} />
-        ))}
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <PropertyCardSkeleton key={i} />
+          ))
+        ) : relatedProperties.length > 0 ? (
+          relatedProperties.map((property) => (
+            <PropertyCard key={property.id} p={property} />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-slate-500">
+            No related properties found.
+          </div>
+        )}
       </div>
     </div>
   )
