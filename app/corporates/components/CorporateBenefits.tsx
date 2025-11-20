@@ -1,43 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { useCorporateBenefitQuery } from '@/hooks/queries/useCorporateBenefitQuery';
+import { SkeletonCard } from '@/components/ui/skeletons';
 
-
-
-const defaults = [
-  {
-    icon: '/account-manager.png',
-    title: 'Account manager',
-    desc: 'A fully-dedicated account manager to provide personalized support',
-  },
-  {
-    icon: '/savew-money.png',
-    title: 'Save money',
-    desc: 'Save money and provide an exclusive home experience to your corporate employees',
-  },
-  {
-    icon: '/interior.png',
-    title: 'Rent with flexibility',
-    desc: 'Rent our apartments from 1 month or more with flexibility and without guarantor',
-  },
-  {
-    icon: '/central-neighborhood.png',
-    title: 'Central neighbourhoods',
-    desc: 'Our properties are located in central areas, close to the major corporate offices',
-  },
-  {
-    icon: '/interior.png',
-    title: 'Beautiful interior design',
-    desc: 'Our apartments are highly-curated and beautifully-designed',
-  },
-  {
-    icon: '/Equipped-to-work.png',
-    title: 'Equipped to work',
-    desc: 'Our apartments are fully-equipped for you to work from home',
-  },
-];
-
-export default function CorporateBenefits({ items = defaults }) {
+export default function CorporateBenefits() {
+  const { data: benefits = [], isLoading } = useCorporateBenefitQuery();
   return (
     <section className="py-14 sm:py-16">
       <div className="mx-auto container">
@@ -56,26 +24,48 @@ export default function CorporateBenefits({ items = defaults }) {
 
         {/* Grid */}
         <div className="mt-14 grid gap-x-12 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((b, i) => (
-            <article key={i} className=" items-start gap-6 hover:scale-105 transition-all duration-500 hover:shadow-lg hover:shadow-gray-300 p-5 rounded-lg hover:border-2 hover:border-gray-300">
-              {/* Icon circle */}
-              <div className="shrink-0 grid place-items-center rounded-full  w-[72px] h-[72px] -ml-2">
-                <Image
-                  src={b.icon}
-                  alt=""
-                  width={60}
-                  height={40}
-                  className="object-contain"
+          {isLoading ? (
+            <>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard
+                  key={i}
+                  showImage={true}
+                  showTitle={true}
+                  showDescription={true}
+                  lines={2}
                 />
-              </div>
+              ))}
+            </>
+          ) : benefits.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-slate-600">
+              No benefits available at the moment.
+            </div>
+          ) : (
+            benefits.map((benefit) => (
+              <article key={benefit.id} className=" items-start gap-6 hover:scale-105 transition-all duration-500 hover:shadow-lg hover:shadow-gray-300 p-5 rounded-lg hover:border-2 hover:border-gray-300">
+                {/* Icon circle */}
+                <div className="shrink-0 grid place-items-center rounded-full  w-[72px] h-[72px] -ml-2">
+                  <Image
+                    src={benefit.image || "/placeholder.png"}
+                    alt={benefit.title}
+                    width={60}
+                    height={40}
+                    className="object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/placeholder.png";
+                    }}
+                  />
+                </div>
 
-              {/* Text */}
-              <div className="mt-5">
-                <h3 className="text-2xl font-bold text-slate-800 mt-3">{b.title}</h3>
-                <p className="mt-3 text-slate-600">{b.desc}</p>
-              </div>
-            </article>
-          ))}
+                {/* Text */}
+                <div className="mt-5">
+                  <h3 className="text-2xl font-bold text-slate-800 mt-3">{benefit.title}</h3>
+                  <p className="mt-3 text-slate-600">{benefit.description}</p>
+                </div>
+              </article>
+            ))
+          )}
         </div>
       </div>
     </section>

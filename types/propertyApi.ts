@@ -27,8 +27,8 @@ export type PropertyApiItem = {
   sqf: string;
   address: string;
   city: string;
-  thumbnail: string | null;
-  galleries: GalleryItem[];
+  image: string | null;
+  galleries: string[];
   rating: number;
   date: string;
   location: PropertyLocation;

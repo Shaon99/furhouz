@@ -68,27 +68,27 @@ const OurLocations = () => {
                 }}
               >
                 {/* Background Photo */}
-                {location.image ? (
-                  <Image
-                    src={location.image}
-                    alt={location.name}
-                    className="object-cover w-full h-full absolute top-0 left-0 blur-[0.9px] brightness-[1]"
-                    style={{
-                      zIndex: 0,
-                      width: "100%",
-                      height: "100%",
-                    }}
-                    width={400}
-                    height={400}
-                    sizes="(max-width: 768px) 100vw, 320px"
-                    priority={false}
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full absolute top-0 left-0 bg-gradient-to-br from-brand-400 to-brand-600"
-                    style={{ zIndex: 0 }}
-                  />
-                )}
+                <Image
+                  src={location.image && location.image.trim() !== "" ? location.image : "/placeholder.png"}
+                  alt={location.name}
+                  className="object-cover w-full h-full absolute top-0 left-0 blur-[0.9px] brightness-[1]"
+                  style={{
+                    zIndex: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  width={400}
+                  height={400}
+                  sizes="(max-width: 768px) 100vw, 320px"
+                  priority={false}
+                  unoptimized={!location.image || location.image.trim() === ""}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== "/placeholder.png") {
+                      target.src = "/placeholder.png";
+                    }
+                  }}
+                />
                 <div
                   className="absolute top-0 left-0 w-full h-full"
                   style={{

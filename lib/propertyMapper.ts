@@ -2,11 +2,18 @@ import { PropertyApiItem } from '@/types/propertyApi';
 import { Property } from '@/app/property/types/property';
 
 export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property {
+  // Handle galleries - can be array of strings (from API) or array of objects
   const galleries = apiProperty.galleries || [];
-  const images = galleries.length > 0 
-    ? galleries.map(g => g.path).filter(Boolean)
-    : apiProperty.thumbnail 
-      ? [apiProperty.thumbnail]
+  const galleryImages = Array.isArray(galleries) && galleries.length > 0
+    ? galleries.map(g => typeof g === 'string' ? g : (g as any).path || '').filter(Boolean)
+    : [];
+
+  // Use main image if available, otherwise use gallery images
+  const mainImage = apiProperty.image || null;
+  const images = mainImage 
+    ? [mainImage, ...galleryImages.filter(img => img !== mainImage)]
+    : galleryImages.length > 0 
+      ? galleryImages
       : [];
 
   return {
@@ -20,7 +27,7 @@ export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property
     areaSft: apiProperty.sqf ? parseInt(apiProperty.sqf) : 0,
     beds: parseInt(apiProperty.bed) || 0,
     baths: parseInt(apiProperty.bath) || 0,
-    images: images.length > 0 ? images.map(img => img || '/placeholder.png') : ['/placeholder.png'],
+    images: images.length > 0 ? images : ['/placeholder.png'],
     typeId: apiProperty.type?.id,
     typeTitle: apiProperty.type?.title,
     garage: apiProperty.grage ? parseInt(apiProperty.grage) : undefined,

@@ -1,15 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiFetch } from '@/lib/apiFetch'
 import { PropertyApiResponse, PropertyApiItem } from '@/types/propertyApi';
 
 export function usePropertyBySlugQuery(slug: string) {
     return useQuery<PropertyApiItem, Error>({
         queryKey: ['property', slug],
         queryFn: async () => {
-            const response = await fetch(`https://admin.furhouz.com/api/property/${slug}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch property');
-            }
-            const data: PropertyApiResponse = await response.json();
+            const data: PropertyApiResponse = await apiFetch<PropertyApiResponse>(`/api/property/${slug}`);
             
             if (!data.success || !data.data || data.data.length === 0) {
                 throw new Error('Property not found');
