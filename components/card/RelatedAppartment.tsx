@@ -1,6 +1,6 @@
 "use client";
 
-import { BedDouble, Bath, Ruler, Mail, MapPin, Star, Heart } from "lucide-react";
+import { BedDouble, Bath, Ruler, Mail, MapPin, Heart } from "lucide-react";
 import CardSlider from "@/app/property/components/CardSlider";
 import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { Property } from "@/app/property/types/property";
@@ -28,12 +28,6 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
               {p.code}
             </span>
           )}
-          
-          {/* Premium badge */}
-          <div className="absolute left-3 top-3 z-20 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-lg">
-            <Star className="h-3 w-3 fill-current" />
-            Premium
-          </div>
 
           {/* Heart icon */}
           <button 
