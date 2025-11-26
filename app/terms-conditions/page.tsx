@@ -5,7 +5,7 @@ import { usePageQuery } from '@/hooks/queries/usePageQuery';
 import { SkeletonText } from '@/components/ui/skeletons';
 
 const TermsConditionsPage: React.FC = () => {
-  const { data: page, isLoading, isError } = usePageQuery('terms-and-conditions');
+  const { data: page, isLoading, isError } = usePageQuery('furhouz-website-terms');
 
   if (isLoading) {
     return (

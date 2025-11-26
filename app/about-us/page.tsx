@@ -10,7 +10,10 @@ const AboutUsPage = () => {
 
   return (
     <div>
-      <AboutHero />
+      <AboutHero 
+        banner={data?.banner}
+        isLoading={isLoading}
+      />
       <WhyAndToday
         section1={data?.section1}
         section2={data?.section2}
