@@ -1,35 +1,97 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect, useMemo } from "react";
 import PropertySearch from "@/app/property/components/PropertySearch";
 import PropertyCard from "@/app/property/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { SkeletonText, SkeletonHeader } from "@/components/ui/skeletons";
 import Pagination from "@/components/ui/pagination";
 import { useLocationDetailQuery } from "@/hooks/queries/useLocationDetailQuery";
+import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
+import { usePropertyFilters } from "@/app/property/context/PropertyFilterContext";
+import { PropertyFilterProvider } from "@/app/property/context/PropertyFilterContext";
 import FurnishedSections from "@/components/furnished/FurnishedSections";
 import { Sparkles, MapPin, Diamond, Building2 } from "lucide-react";
+import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
+import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 
-export default function AreaPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-
+function AreaPageContent({ slug }: { slug: string }) {
+  const { getApiFilters, hasActiveFilters } = usePropertyFilters();
+  const { data: locations = [] } = useLocationQuery();
+  const [page, setPage] = useState(1);
+  
+  // Find current location ID from slug
+  const currentLocation = useMemo(() => {
+    return locations.find(loc => loc.slug === slug);
+  }, [locations, slug]);
+  
+  // Get filters and automatically set location_id if not already set
+  const apiFilters = useMemo(() => {
+    const filters = getApiFilters();
+    // If no location filter is set, use current location
+    if (!('location_id' in filters && filters.location_id) && currentLocation) {
+      return { ...filters, location_id: currentLocation.id };
+    }
+    return filters;
+  }, [getApiFilters, currentLocation]);
+  
+  // Create a stable key for filter changes
+  const filterKey = useMemo(() => {
+    const f = apiFilters;
+    return `${('location_id' in f ? f.location_id : '') || ''}-${('minPrice' in f ? f.minPrice : '') || ''}-${('maxPrice' in f ? f.maxPrice : '') || ''}-${('property_id' in f ? f.property_id : '') || ''}`;
+  }, [apiFilters]);
+  
+  // Use filtered properties if filters are active, otherwise use location detail
+  const hasFilters = hasActiveFilters();
+  const { data: filteredProperties = [], isLoading: isLoadingFiltered } = usePropertiesQuery(page, apiFilters);
+  
   const {
     name,
     description,
     priceRange,
     avgArea,
-    properties,
-    pagination,
-    isLoading,
+    properties: locationProperties,
+    pagination: locationPagination,
+    isLoading: isLoadingLocation,
     error,
-    loadPage,
+    loadPage: loadLocationPage,
     faqs,
     sections,
     facilities,
     why_should_rent,
   } = useLocationDetailQuery(slug, 1, 8);
+  
+  // Reset page when filters change
+  useEffect(() => {
+    if (hasFilters) {
+      setPage(1);
+    }
+  }, [hasFilters, filterKey]);
+  
+  // Use filtered properties if filters are active, otherwise use location properties
+  const properties = hasFilters 
+    ? filteredProperties.map(mapApiPropertyToProperty)
+    : locationProperties;
+  
+  const isLoading = hasFilters ? isLoadingFiltered : isLoadingLocation;
+  
+  const pagination = hasFilters ? {
+    currentPage: page,
+    totalPages: Math.ceil(filteredProperties.length / 8) || 1,
+    totalItems: filteredProperties.length,
+    hasMore: page * 8 < filteredProperties.length,
+    itemsPerPage: 8
+  } : locationPagination;
+  
+  const loadPage = (newPage: number) => {
+    if (hasFilters) {
+      setPage(newPage);
+    } else {
+      loadLocationPage(newPage);
+    }
+  };
 
-  if (isLoading) {
+  if (isLoading && properties.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-tl from-blue-50 via-white to-pink-50">
         {/* Hero Skeleton */}
@@ -141,7 +203,7 @@ export default function AreaPage({ params }: { params: Promise<{ slug: string }>
           {properties.length === 0 ? (
             <div className="text-center py-20 text-gray-400 text-xl font-semibold">
               <Sparkles className="inline w-8 h-8 mr-2 text-blue-300" />
-              No properties found in this area.
+              {hasFilters ? "No properties found with the selected filters." : "No properties found in this area."}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in">
@@ -177,6 +239,16 @@ export default function AreaPage({ params }: { params: Promise<{ slug: string }>
   );
 }
 
+export default function AreaPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  
+  return (
+    <PropertyFilterProvider>
+      <AreaPageContent slug={slug} />
+    </PropertyFilterProvider>
+  );
+}
+
 // --- Utility components ---
 
 function StatBox({ icon, value, label }: { icon: React.ReactNode, value: string | number, label: string }) {
@@ -190,4 +262,3 @@ function StatBox({ icon, value, label }: { icon: React.ReactNode, value: string 
     </div>
   );
 }
-

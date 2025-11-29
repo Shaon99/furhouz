@@ -155,9 +155,8 @@ function Card({ quote, name, role }: { quote: string; name: string; role: string
             xl:text-[20px] xl:leading-[32px]
             font-normal opacity-95
           `}
-        >
-          {quote}
-        </p>
+          dangerouslySetInnerHTML={{ __html: quote }}
+        />
         <h3
           className={`
             text-lg font-bold pt-4
