@@ -28,8 +28,12 @@ export default function PropertyCard({ p }: { p: Property }) {
 
           {/* Heart icon */}
           <button 
-            onClick={() => setIsFavorited(!isFavorited)}
-            className="absolute right-3 top-12 z-20 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsFavorited(!isFavorited);
+            }}
+            className="absolute right-3 top-12 z-40 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
           >
             <Heart 
               className={`h-5 w-5 transition-all duration-300 ${

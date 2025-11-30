@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, A11y, Autoplay } from "swiper/modules";
-import { useRef, useMemo, useEffect, useState } from "react";
+import type { Swiper as SwiperType } from "swiper";
+import { useRef, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -13,19 +14,34 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
   const uniqueId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
   const prevButtonRef = useRef<HTMLButtonElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
-
-  const swiperRef = useRef<any>(null);
+  const router = useRouter();
+  const swiperRef = useRef<SwiperType | null>(null);
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+  const isNavigatingRef = useRef(false);
 
-  useEffect(() => {
-    if (swiperRef.current?.params?.navigation && prevButtonRef.current && nextButtonRef.current) {
-      swiperRef.current.params.navigation.prevEl = prevButtonRef.current;
-      swiperRef.current.params.navigation.nextEl = nextButtonRef.current;
-      swiperRef.current.navigation?.destroy();
-      swiperRef.current.navigation?.init();
-      swiperRef.current.navigation?.update();
+  // Fast navigation handler - works on first click
+  const handleNavigate = useCallback((e: React.MouseEvent) => {
+    // Prevent if clicking on navigation buttons or pagination
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('.swiper-pagination')) {
+      return;
     }
-  }, [uniqueId]);
+
+    // Prevent multiple navigations
+    if (isNavigatingRef.current) {
+      return;
+    }
+
+    isNavigatingRef.current = true;
+    
+    // Use Next.js router for fast client-side navigation
+    router.push(`/property/${slug}`);
+    
+    // Reset after navigation starts
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
+  }, [slug, router]);
 
   return (
     <div className="relative group">
@@ -35,8 +51,25 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         slidesPerView={1}
         onSwiper={(swiper) => {
           swiperRef.current = swiper;
+          // Set navigation elements after swiper is ready
+          if (prevButtonRef.current && nextButtonRef.current && swiper.navigation) {
+            try {
+              if (swiper.params.navigation && typeof swiper.params.navigation === 'object') {
+                const navParams = swiper.params.navigation as { prevEl?: HTMLElement | string | null; nextEl?: HTMLElement | string | null };
+                navParams.prevEl = prevButtonRef.current;
+                navParams.nextEl = nextButtonRef.current;
+                swiper.navigation.update();
+              }
+            } catch {
+              // Handle error silently
+            }
+          }
         }}
-        speed={600} // smoother transition speed
+        navigation={{
+          prevEl: prevButtonRef.current,
+          nextEl: nextButtonRef.current,
+        }}
+        speed={400}
         pagination={{
           clickable: true,
           bulletClass: `swiper-pagination-bullet-${uniqueId}`,
@@ -45,25 +78,31 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         autoplay={{
           delay: 5000,
           disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         }}
+        allowTouchMove={true}
+        preventClicks={false}
+        preventClicksPropagation={false}
+        simulateTouch={true}
+        touchEventsTarget="container"
+        noSwiping={false}
+        noSwipingClass="swiper-no-swiping"
         className="rounded-xl overflow-hidden shadow-xl"
       >
         {(images.length > 0 ? images : ['/placeholder.png']).map((src, i) => {
           const imageSrc = failedImages.has(i) ? '/placeholder.png' : src;
           return (
-            <SwiperSlide key={i}>
+            <SwiperSlide 
+              key={i}
+              onClick={handleNavigate}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="relative aspect-[16/12] w-full overflow-hidden bg-slate-100">
-                <Link
-                  href={`/property/${slug}`}
-                  className="absolute inset-0 z-10"
-                  aria-label="View property details"
-                  style={{ pointerEvents: "auto" }}
-                />
                 <Image
                   src={imageSrc}
                   alt={`Property image ${i + 1}`}
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(min-width:1280px) 280px, (min-width:768px) 33vw, 100vw"
                   priority={i === 0}
                   onError={() => setFailedImages(prev => new Set(prev).add(i))}
@@ -80,8 +119,9 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         type="button"
         tabIndex={0}
         aria-label="Previous Slide"
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 hover:shadow-2xl border border-white/20"
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 hover:shadow-2xl border border-white/20"
         style={{ pointerEvents: "auto" }}
+        onClick={(e) => e.stopPropagation()}
       >
         <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -92,8 +132,9 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         type="button"
         tabIndex={0}
         aria-label="Next Slide"
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 hover:shadow-2xl border border-white/20"
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 hover:shadow-2xl border border-white/20"
         style={{ pointerEvents: "auto" }}
+        onClick={(e) => e.stopPropagation()}
       >
         <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

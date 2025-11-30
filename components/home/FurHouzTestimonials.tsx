@@ -32,7 +32,7 @@ export default function TestimonialsSlider() {
   if (!data || data.length === 0) return null;
 
   const testimonials = data.map((t) => ({
-    quote: t.message || t.designation || "",
+    quote: t.description || t.message || t.designation || "",
     name: t.name,
     role: t.designation || "",
   }));
@@ -120,6 +120,15 @@ export default function TestimonialsSlider() {
         .swiper-button-prev {
           display: none !important;
         }
+
+        /* Ensure all text inside testimonial cards is white */
+        .mySwiper .swiper-slide p,
+        .mySwiper .swiper-slide h3,
+        .mySwiper .swiper-slide p *,
+        .mySwiper .swiper-slide span,
+        .mySwiper .swiper-slide div {
+          color: white !important;
+        }
       `}</style>
     </section>
   );
@@ -153,26 +162,29 @@ function Card({ quote, name, role }: { quote: string; name: string; role: string
             md:text-[17px] md:leading-[27px]
             lg:text-[19px] lg:leading-[30px]
             xl:text-[20px] xl:leading-[32px]
-            font-normal opacity-95
+            font-normal text-white
           `}
+          style={{ color: 'white' }}
           dangerouslySetInnerHTML={{ __html: quote }}
         />
         <h3
           className={`
-            text-lg font-bold pt-4
+            text-lg font-bold pt-4 text-white
             md:text-[18px] md:pt-3
             lg:text-[20px] lg:pt-4
             xl:text-xl xl:pt-5
           `}
+          style={{ color: 'white' }}
         >
           {name}
         </h3>
         <p
           className={`
-            opacity-90
+            text-white
             text-sm md:text-base lg:text-lg xl:text-lg
             pt-1
           `}
+          style={{ color: 'white' }}
         >
           {role}
         </p>

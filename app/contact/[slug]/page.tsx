@@ -2,15 +2,17 @@ import { notFound } from "next/navigation";
 import ContactForm from "../components/contact/ContactForm";
 import { CONTACT_VARIANTS } from "../components/contact/config";
 
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 
-export function generateMetadata({ params }: Props) {
-  const v = CONTACT_VARIANTS[params.slug as keyof typeof CONTACT_VARIANTS];
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const v = CONTACT_VARIANTS[slug as keyof typeof CONTACT_VARIANTS];
   return { title: v ? v.title : "Contact" };
 }
 
-export default function ContactPage({ params }: Props) {
-  const variant = CONTACT_VARIANTS[params.slug as keyof typeof CONTACT_VARIANTS];
+export default async function ContactPage({ params }: Props) {
+  const { slug } = await params;
+  const variant = CONTACT_VARIANTS[slug as keyof typeof CONTACT_VARIANTS];
   if (!variant) notFound();
 
   return (

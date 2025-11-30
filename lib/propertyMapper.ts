@@ -24,7 +24,7 @@ export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property
   const galleryImages = Array.isArray(galleries) && galleries.length > 0
     ? galleries
         .map(g => {
-          const url = typeof g === 'string' ? g : (g as any)?.path || '';
+          const url = typeof g === 'string' ? g : (typeof g === 'object' && g !== null && 'path' in g ? (g as { path: string }).path : '');
           // Normalize and filter out empty strings
           return url && typeof url === 'string' && url.trim() !== '' ? normalizeImageUrl(url) : '';
         })

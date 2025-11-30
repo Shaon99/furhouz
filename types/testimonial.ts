@@ -4,6 +4,7 @@ export type Testimonial = {
   image: string | null;
   designation: string;
   message: string | null;
+  description: string | null;
 }
 
 export type TestimonialApiResponse = {

@@ -29,10 +29,14 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     unoptimized: false,
   },
-  // Disable Turbopack font optimization if causing issues
+  // Performance optimizations
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', 'swiper', 'swiper/react'],
   },
+  // Enable compression
+  compress: true,
+  // Optimize images
+  poweredByHeader: false,
 };
 
 export default nextConfig;
