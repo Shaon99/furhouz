@@ -7,6 +7,7 @@ import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { SkeletonText, SkeletonHeader } from "@/components/ui/skeletons";
 import Pagination from "@/components/ui/pagination";
 import { useLocationDetailQuery } from "@/hooks/queries/useLocationDetailQuery";
+import { useAreaDetailsQuery } from "@/hooks/queries/useAreaDetailsQuery";
 import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
 import { usePropertyFilters } from "@/app/property/context/PropertyFilterContext";
 import { PropertyFilterProvider } from "@/app/property/context/PropertyFilterContext";
@@ -35,45 +36,46 @@ function AreaPageContent({ slug }: { slug: string }) {
     return filters;
   }, [getApiFilters, currentLocation]);
   
-  // Create a stable key for filter changes
-  const filterKey = useMemo(() => {
-    const f = apiFilters;
-    return `${('location_id' in f ? f.location_id : '') || ''}-${('minPrice' in f ? f.minPrice : '') || ''}-${('maxPrice' in f ? f.maxPrice : '') || ''}-${('property_id' in f ? f.property_id : '') || ''}`;
-  }, [apiFilters]);
-  
   // Use filtered properties if filters are active, otherwise use location detail
   const hasFilters = hasActiveFilters();
   const { data: filteredProperties = [], isLoading: isLoadingFiltered } = usePropertiesQuery(page, apiFilters);
   
+  // Get area details from /api/area endpoint
+  const { data: areaDetails, isLoading: isLoadingAreaDetails, error: areaError } = useAreaDetailsQuery(slug);
+  
+  // Get properties from location detail query (for properties data)
   const {
-    name,
-    description,
+    name: locationName,
+    description: locationDescription,
     priceRange,
     avgArea,
     properties: locationProperties,
     pagination: locationPagination,
     isLoading: isLoadingLocation,
-    error,
+    error: locationError,
     loadPage: loadLocationPage,
-    faqs,
-    sections,
-    facilities,
-    why_should_rent,
   } = useLocationDetailQuery(slug, 1, 8);
+
+  // Use area details if available, otherwise fall back to location details
+  const name = areaDetails?.name || locationName || '';
+  const description = areaDetails?.banner_description || locationDescription || '';
+  const bannerTitle = areaDetails?.banner_title || '';
+  const bannerImage = areaDetails?.banner || '';
+  const error = areaError?.message || locationError;
   
   // Reset page when filters change
   useEffect(() => {
     if (hasFilters) {
       setPage(1);
     }
-  }, [hasFilters, filterKey]);
-  
+  }, [hasFilters, apiFilters]);
+
   // Use filtered properties if filters are active, otherwise use location properties
   const properties = hasFilters 
     ? filteredProperties.map(mapApiPropertyToProperty)
     : locationProperties;
-  
-  const isLoading = hasFilters ? isLoadingFiltered : isLoadingLocation;
+
+  const isLoading = hasFilters ? isLoadingFiltered : (isLoadingAreaDetails || isLoadingLocation);
   
   const pagination = hasFilters ? {
     currentPage: page,
@@ -151,12 +153,22 @@ function AreaPageContent({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen bg-gradient-to-tl from-blue-50 via-white to-pink-50 mx-auto">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 text-white py-24 relative overflow-hidden shadow-xl rounded-b-3xl md:rounded-none">
+      <section 
+        className="text-white py-24 relative overflow-hidden shadow-xl rounded-b-3xl md:rounded-none"
+        style={{
+          backgroundImage: bannerImage 
+            ? `linear-gradient(rgba(30, 58, 138, 0.85), rgba(67, 56, 202, 0.85)), url(${bannerImage})`
+            : 'linear-gradient(to right, rgb(30, 58, 138), rgb(29, 78, 216), rgb(67, 56, 202))',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_70%_40%,#fff7,#00a2ff22_60%,transparent_80%)]" />
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-3xl md:text-4xl lg:text-7xl font-extrabold mb-5 drop-shadow-lg tracking-tight flex items-center justify-center gap-3">
             <Diamond className="inline w-10 h-10 text-cyan-200 animate-spin-slow" />
-            Properties in <span className="ml-2 text-yellow-300">{name}</span>
+            {bannerTitle || `Properties in ${name}`}
           </h1>
           <p className="text-2xl md:text-3xl mb-10 opacity-90 font-semibold drop-shadow">
             {description}
@@ -229,10 +241,21 @@ function AreaPageContent({ slug }: { slug: string }) {
       <div className="container mx-auto">
         <FurnishedSections
           name={name}
-          sections={sections}
-          facilities={facilities}
-          why_should_rent={why_should_rent}
-          faqs={faqs}
+          sections={areaDetails?.sections?.map(s => ({ 
+            title: s.title, 
+            content: s.content 
+          })) || []}
+          facilities={[]}
+          why_should_rent={[]}
+          placetovisit={areaDetails?.placetovisit || []}
+          restaurants={areaDetails?.restaurants || []}
+          hotels={areaDetails?.hotels || []}
+          embassies={areaDetails?.embassies || []}
+          academic_institutions={areaDetails?.academic_institutions || []}
+          hospitals={areaDetails?.hospitals || []}
+          commercial_towers={areaDetails?.commercial_towers || []}
+          faqs={areaDetails?.faqs || []}
+          final_words={areaDetails?.final_words}
         />
       </div>
     </div>

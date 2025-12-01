@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/thumbs";
 import Image from "next/image";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Swiper as SwiperClass } from "swiper";
 import { Property } from "../../types/property";
@@ -106,19 +106,6 @@ export default function Gallery({ images, property }: { images: string[]; proper
   const displayImages = useMemo(() => {
     return validImages.length > 0 ? validImages : ['/placeholder.png'];
   }, [validImages]);
-
-  // Debug: Log images for troubleshooting
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      console.log('Gallery Images:', {
-        originalImages: images,
-        validImages,
-        displayImages,
-        propertyId: property.id,
-        propertyTitle: property.title
-      });
-    }
-  }, [images, property.id, property.title, validImages, displayImages]);
 
   const handlePrev = () => thumbSliderRef.current?.slidePrev();
   const handleNext = () => thumbSliderRef.current?.slideNext();
@@ -366,7 +353,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
         <div id="features">
           <FeaturesAndAmenities p={property} />
         </div>
-        <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} />
+        <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} propertyId={property.id} />
         <div className="mt-6 xl:hidden">
           <RelatedAppartment />
         </div>
@@ -374,7 +361,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
         </div>
         <div className="col-span-1 xl:col-span-4">
           <div className="sticky top-24">
-            <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} />
+            <EnquiryForm defaultMessage={`Hello, I am interested in [${property.id}] - ${property.title}`} propertyId={property.id} />
           </div>
         </div>
       </div>

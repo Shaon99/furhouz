@@ -5,13 +5,13 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
+import { useGetRequestMutation } from "@/hooks/queries/useGetRequestMutation";
 import { SkeletonLogo } from "@/components/ui/skeletons";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -19,6 +19,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 
 const schema = z.object({
   name: z.string().min(2, "Please enter your full name"),
@@ -34,16 +35,33 @@ type FormValues = z.infer<typeof schema>;
 
 export default function EnquiryPage() {
   const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
+  const getRequestMutation = useGetRequestMutation();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", phone: "", message: "" },
   });
 
+  const isSubmitting = getRequestMutation.isPending;
+
   async function onSubmit(values: FormValues) {
-    // TODO: hook up to your API (send email / store DB)
-    console.log("Enquiry:", values);
-    form.reset();
-    alert("Thank you! We received your enquiry.");
+    try {
+      const result = await getRequestMutation.mutateAsync(values);
+      if (result.success) {
+        alert("Thank you! Your enquiry has been sent successfully.");
+        form.reset();
+      } else {
+        alert(result.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      const err = error as { body?: { errors?: Record<string, string[]> }; message?: string };
+      const errors = err?.body?.errors;
+      if (errors) {
+        const msg = Object.entries(errors).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n");
+        alert(`Validation Error:\n${msg}`);
+      } else {
+        alert(err?.message || "Failed to send enquiry. Please try again.");
+      }
+    }
   }
 
   return (
@@ -153,9 +171,10 @@ export default function EnquiryPage() {
                 <div className="pt-2">
                   <Button
                     type="submit"
-                    className="h-11 px-6 rounded-md bg-[#122033] hover:bg-[#0f1b2b] shadow-[0_10px_20px_rgba(18,32,51,.2)]"
+                    disabled={isSubmitting}
+                    className="h-11 px-6 rounded-md bg-[#122033] hover:bg-[#0f1b2b] shadow-[0_10px_20px_rgba(18,32,51,.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </div>
               </form>
