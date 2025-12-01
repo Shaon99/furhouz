@@ -1,20 +1,61 @@
 import { PropertyApiItem } from '@/types/propertyApi';
 import { Property } from '@/app/property/types/property';
 
+// Normalize image URL - remove double slashes and fix URL format
+function normalizeImageUrl(url: string): string {
+  if (!url || typeof url !== 'string') return '';
+  let normalized = url.trim();
+  
+  // Remove double slashes (but keep http:// or https://)
+  normalized = normalized.replace(/([^:]\/)\/+/g, '$1');
+  
+  // Fix escaped slashes from JSON
+  normalized = normalized.replace(/\\\//g, '/');
+  
+  // Remove trailing slashes
+  normalized = normalized.replace(/\/+$/, '');
+  
+  return normalized;
+}
+
 export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property {
   // Handle galleries - can be array of strings (from API) or array of objects
   const galleries = apiProperty.galleries || [];
   const galleryImages = Array.isArray(galleries) && galleries.length > 0
-    ? galleries.map(g => typeof g === 'string' ? g : (g as any).path || '').filter(Boolean)
+    ? galleries
+        .map(g => {
+          const url = typeof g === 'string' ? g : (typeof g === 'object' && g !== null && 'path' in g ? (g as { path: string }).path : '');
+          // Normalize and filter out empty strings
+          return url && typeof url === 'string' && url.trim() !== '' ? normalizeImageUrl(url) : '';
+        })
+        .filter(Boolean)
     : [];
 
   // Use main image if available, otherwise use gallery images
-  const mainImage = apiProperty.image || null;
-  const images = mainImage 
-    ? [mainImage, ...galleryImages.filter(img => img !== mainImage)]
-    : galleryImages.length > 0 
-      ? galleryImages
-      : [];
+  const mainImage = apiProperty.image && typeof apiProperty.image === 'string' && apiProperty.image.trim() !== '' 
+    ? normalizeImageUrl(apiProperty.image.trim())
+    : null;
+  
+  let images: string[] = [];
+  
+  if (mainImage) {
+    images = [mainImage, ...galleryImages.filter(img => img && img !== mainImage && img.trim() !== '')];
+  } else if (galleryImages.length > 0) {
+    images = galleryImages;
+  }
+  
+  // Remove duplicates and ensure we have at least placeholder
+  images = [...new Set(images.filter(img => img && img.trim() !== ''))];
+  
+  // Debug logging
+  if (typeof window !== 'undefined' && images.length === 0) {
+    console.warn('PropertyMapper: No images found', {
+      propertyId: apiProperty.id,
+      mainImage: apiProperty.image,
+      galleries: apiProperty.galleries,
+      galleryImages
+    });
+  }
 
   return {
     id: apiProperty.id.toString(),

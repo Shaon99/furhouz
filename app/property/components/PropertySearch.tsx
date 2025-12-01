@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, X } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -10,6 +10,8 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
+import { usePropertyFilters } from "../context/PropertyFilterContext";
+import { toast } from "sonner";
 
 const priceRanges = [
   "50000-100000",
@@ -26,18 +28,41 @@ const priceRanges = [
 ];
 
 export default function PropertySearch() {
-  const [propertyId, setPropertyId] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState("");
+  const { filters, setFilters, clearFilters, hasActiveFilters } = usePropertyFilters();
+  const [propertyId, setPropertyId] = useState(filters.propertyId);
+  const [selectedLocation, setSelectedLocation] = useState(filters.location);
+  const [selectedPrice, setSelectedPrice] = useState(filters.price);
   const { data: locations = [], isLoading: locationsLoading } = useLocationQuery();
 
+  // Sync local state with context when filters change externally
+  useEffect(() => {
+    setPropertyId(filters.propertyId);
+    setSelectedLocation(filters.location);
+    setSelectedPrice(filters.price);
+  }, [filters]);
+
   const handleSearch = () => {
-    console.log({
-      propertyId,
-      selectedLocation,
-      selectedPrice,
+    // Update context with current filter values
+    setFilters({
+      propertyId: propertyId.trim(),
+      location: selectedLocation,
+      price: selectedPrice,
     });
-    alert("Search clicked!");
+    
+    // Show feedback
+    if (propertyId || selectedLocation || selectedPrice) {
+      toast.success("Search filters applied!");
+    } else {
+      toast.info("Showing all properties");
+    }
+  };
+
+  const handleClear = () => {
+    setPropertyId("");
+    setSelectedLocation("");
+    setSelectedPrice("");
+    clearFilters();
+    toast.info("Filters cleared");
   };
 
   return (
@@ -59,6 +84,12 @@ export default function PropertySearch() {
             placeholder="Property ID"
             value={propertyId}
             onChange={(e) => setPropertyId(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
             className="w-full p-2 bg-white rounded-tr-md rounded-br-md border border-sky-600 focus:ring-2 focus-within:ring-black focus:outline-none"
           />
         </div>
@@ -70,7 +101,11 @@ export default function PropertySearch() {
               <SelectValue
                 placeholder="Choose a location..."
                 className="text-gray-500"
-              />
+              >
+                {selectedLocation 
+                  ? locations.find(loc => loc.id.toString() === selectedLocation)?.name || selectedLocation
+                  : "Choose a location..."}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className="rounded-lg shadow-xl bg-white border-2 border-sky-200">
               {locationsLoading ? (
@@ -80,7 +115,7 @@ export default function PropertySearch() {
               ) : (
                 locations.map((location) => (
                   <SelectItem
-                    value={location.name}
+                    value={location.id.toString()}
                     key={location.id}
                     className="px-4 py-2 text-base hover:bg-sky-50 hover:text-sky-700 cursor-pointer transition-all"
                   >
@@ -118,15 +153,32 @@ export default function PropertySearch() {
         </div>
 
         {/* Search Button */}
-        <button
-          onClick={handleSearch}
-          className="
-            bg-sky-400 hover:bg-sky-500 text-white font-semibold px-8 py-2 rounded-md transition-all
-            h-[44px] w-full md:w-auto md:min-w-[180px] flex items-center justify-center
-          "
-        >
-          Search
-        </button>
+        <div className="flex gap-2 w-full md:w-auto">
+          <button
+            onClick={handleSearch}
+            className="
+              bg-sky-400 hover:bg-sky-500 text-white font-semibold px-8 py-2 rounded-md transition-all
+              h-[44px] w-full md:w-auto md:min-w-[180px] flex items-center justify-center gap-2
+            "
+          >
+            <Search className="w-4 h-4" />
+            Search
+          </button>
+          
+          {hasActiveFilters() && (
+            <button
+              onClick={handleClear}
+              className="
+                bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md transition-all
+                h-[44px] flex items-center justify-center gap-2
+              "
+              title="Clear all filters"
+            >
+              <X className="w-4 h-4" />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );

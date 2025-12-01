@@ -1,18 +1,45 @@
+'use client'
+
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePageBannerQuery } from '@/hooks/queries/usePageBannerQuery'
+import { SkeletonHeader } from '@/components/ui/skeletons'
 
-const Banner = () => {
+interface BannerProps {
+  pagename?: string;
+}
+
+const Banner = ({ pagename = 'homepage' }: BannerProps) => {
+  const { data: banner, isLoading } = usePageBannerQuery(pagename);
+
+  if (isLoading) {
+    return (
+      <section
+        className="w-full min-h-[350px] flex justify-center items-center px-4 py-2 lg:py-6 -mt-10 lg:-mt-0"
+        style={{ position: "relative" }}
+      >
+        <div className="relative w-full max-w-[1350px] container min-h-[330px] h-[330px] md:h-[370px] lg:h-[450px] flex items-center mx-auto overflow-hidden">
+          <SkeletonHeader className="w-full h-full rounded-lg" />
+        </div>
+      </section>
+    );
+  }
+
+  if (!banner) {
+    return null;
+  }
+
   return (
     <section
-      className="w-full min-h-[350px] flex justify-center items-center px-4 py-2 lg:py-10 -mt-10 lg:-mt-0"
+      className="w-full min-h-[350px] flex justify-center items-center px-4 py-2 lg:py-6 -mt-10 lg:-mt-0"
       style={{ position: "relative" }}
     >
-      <div className="relative w-full max-w-[1350px] container min-h-[330px] h-[330px] md:h-[370px] lg:h-[500px] flex items-center mx-auto overflow-hidden">
+      <div className="relative w-full max-w-[1350px] container min-h-[330px] h-[330px] md:h-[370px] lg:h-[450px] flex items-center mx-auto overflow-hidden">
         {/* Banner Background Image */}
         <Image
-          src="/banner.jpeg"
-          alt="Banner"
+          src={banner.image || '/banner.jpeg'}
+          alt={banner.title || 'Banner'}
           fill
           priority
           sizes="(max-width: 900px) 100vw, 1400px"
@@ -38,22 +65,24 @@ const Banner = () => {
             className="text-[2rem] md:text-[2.5rem] font-semibold text-black leading-tight mb-2 tracking-tight"
             style={{ fontFamily: "var(--font-sans,inherit)" }}
           >
-            Rent apartments for your company
+            {banner.title}
           </h1>
           <p className="text-[1rem] mb-6 max-w-[700px] leading-snug text-black tracking-tight">
-            Manage easily all your corporate apartments needs with flexibility and exclusive support. Save time and money. Ideal for you and your team.
+            {banner.subtitle}
           </p>
-          <Link
-            href="/corporates"
-            className="inline-block px-8 py-4 rounded w-56 bg-[#064d83] text-white text-[15px] font-medium transition-colors"
-            style={{
-              minWidth: 120,
-              textAlign: "center",
-              boxShadow: '0 1px 8px 0 #ebf3ff'
-            }}
-          >
-            Get to know us
-          </Link>
+          {banner.url && (
+            <Link
+              href={banner.url}
+              className="inline-block px-8 py-4 rounded w-56 bg-[#064d83] text-white text-[15px] font-medium transition-colors"
+              style={{
+                minWidth: 120,
+                textAlign: "center",
+                boxShadow: '0 1px 8px 0 #ebf3ff'
+              }}
+            >
+              Get to know us
+            </Link>
+          )}
         </div>
       </div>
     </section>

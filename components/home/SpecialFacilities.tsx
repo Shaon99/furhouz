@@ -90,6 +90,7 @@ export default function SpecialFacilities() {
 
   const section3 = data?.main?.[2];
   const facilities = data?.facilities?.[0]?.content_items || [];
+  const gymFitness = data?.main?.find((item) => item.id === 5);
 
   if (isLoading) {
     return (
@@ -131,28 +132,19 @@ export default function SpecialFacilities() {
 
         {facilities.length > 0 && <FacilitySlider features={facilities} />}
 
-        <div className="mt-10 text-center">
-          <h3 className="font-bold text-lg text-black">Gym &amp; Fitness</h3>
-        </div>
+        {gymFitness && (
+          <>
+            <div className="mt-10 text-center">
+              <h3 className="font-bold text-lg text-black">{gymFitness.title}</h3>
+            </div>
 
-        <div className="mt-4 space-y-6 text-black leading-relaxed">
-          <p className="text-justify text-sm">
-            Are you a health-conscious person? Renting a furnished apartment in
-            Dhaka will inspire you to stay fit. Are you wondering how is that
-            possible? Alright, mostly furnished apartments offer fitness
-            facilities. You can expect to have a gym or and swimming pool. These
-            amenities can make it easy to maintain a healthy lifestyle.
-          </p>
-
-          <p className="text-justify text-sm">
-            Is there still any doubt left in your mind about why you should rent
-            a furnished apartment in Dhaka? If you have any rental queries, feel
-            free to contact us. Our support team will assist you to make the
-            best decision. However, you might be thinking about the location.
-            Let me inform you of 3 prime locations that you can choose according
-            to your convenience.
-          </p>
-        </div>
+            <div className="mt-4 space-y-6 text-black leading-relaxed">
+              <p className="text-justify text-sm whitespace-pre-line">
+                {gymFitness.description}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

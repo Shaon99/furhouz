@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/thumbs";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Swiper as SwiperClass } from "swiper";
 import { Property } from "../../types/property";
@@ -26,37 +26,41 @@ function useThumbsToShow() {
 // Adjust main image gallery height per md, lg, xl, 2xl and desktop
 const GALLERY_HEIGHT_CSS = `
   .property-gallery-swiper-main {
-    height: 260px;
-    max-height: 280px;
+    min-height: 260px;
+    height: 100%;
+  }
+  .property-gallery-swiper-main .swiper-slide {
+    height: 100% !important;
+    position: relative;
   }
   @media (min-width: 640px) {
     .property-gallery-swiper-main {
-      height: 300px;
-      max-height: 340px;
+      min-height: 300px;
+      height: 100%;
     }
   }
   @media (min-width: 768px) {
     .property-gallery-swiper-main {
-      height: 420px;
-      max-height: 500px;
+      min-height: 420px;
+      height: 100%;
     }
   }
   @media (min-width: 1024px) {
     .property-gallery-swiper-main {
-      height: 530px;
-      max-height: 570px;
+      min-height: 500px;
+      height: 100%;
     }
   }
   @media (min-width: 1280px) {
     .property-gallery-swiper-main {
-      height: 650px;
-      max-height: 720px;
+      min-height: 600px;
+      height: 100%;
     }
   }
   @media (min-width: 1536px) {
     .property-gallery-swiper-main {
-      height: 780px;
-      max-height: 850px;
+      min-height: 700px;
+      height: 100%;
     }
   }
 `;
@@ -94,6 +98,28 @@ export default function Gallery({ images, property }: { images: string[]; proper
   const isScrollingRef = useRef(false);
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
+  // Ensure we always have images to display
+  const validImages = useMemo(() => {
+    return images?.filter(img => img && typeof img === 'string' && img.trim() !== '') || [];
+  }, [images]);
+
+  const displayImages = useMemo(() => {
+    return validImages.length > 0 ? validImages : ['/placeholder.png'];
+  }, [validImages]);
+
+  // Debug: Log images for troubleshooting
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('Gallery Images:', {
+        originalImages: images,
+        validImages,
+        displayImages,
+        propertyId: property.id,
+        propertyTitle: property.title
+      });
+    }
+  }, [images, property.id, property.title, validImages, displayImages]);
+
   const handlePrev = () => thumbSliderRef.current?.slidePrev();
   const handleNext = () => thumbSliderRef.current?.slideNext();
 
@@ -127,7 +153,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
       <div
         className="col-span-1 xl:col-span-8 rounded-2xl overflow-hidden shadow-xl border-[2.5px] border-blue-200 mb-3 relative group"
         style={{
-          aspectRatio: "16/7",
+          aspectRatio: "16/9",
           width: "100%",
           background: "linear-gradient(135deg, #fafbfe 0%, #e6f0fc 100%)"
         }}
@@ -144,21 +170,30 @@ export default function Gallery({ images, property }: { images: string[]; proper
           }}
           grabCursor={true}
         >
-          {images.map((src, i) => {
-            const imageSrc = failedImages.has(i) ? '/placeholder.png' : src;
+          {displayImages.map((src, i) => {
+            const imageSrc = failedImages.has(i) ? '/placeholder.png' : (src || '/placeholder.png');
             return (
-              <SwiperSlide key={i} className="w-full h-full">
+              <SwiperSlide 
+                key={i} 
+                className="w-full h-full flex items-center justify-center"
+                style={{ position: 'relative', width: '100%', height: '100%' }}
+              >
                 <Image
                   src={imageSrc}
                   alt={`Property image ${i + 1}`}
                   fill
                   priority={i === 0}
-                  className="object-fill w-full h-full"
+                  className="object-cover w-full h-full"
                   draggable={false}
-                  onError={() => setFailedImages(prev => new Set(prev).add(i))}
+                  onError={() => {
+                    console.error('Image failed to load:', imageSrc);
+                    setFailedImages(prev => new Set(prev).add(i));
+                  }}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
                   style={{
                     transition: "transform .4s",
-                    borderRadius: "1rem"
+                    borderRadius: "1rem",
+                    objectFit: "cover"
                   }}
                 />
               </SwiperSlide>
@@ -170,7 +205,7 @@ export default function Gallery({ images, property }: { images: string[]; proper
       {/* Thumbs slider - always 5 per view, gap low, width up */}
       <div className="relative w-full mt-2 px-1 sm:px-2">
         <div className="relative">
-          {images.length > thumbsToShow && (
+          {displayImages.length > thumbsToShow && (
             <>
               <button
                 onClick={handlePrev}
@@ -226,8 +261,8 @@ export default function Gallery({ images, property }: { images: string[]; proper
                 paddingRight: 4,
               }}
             >
-              {images.map((src, i) => {
-                const thumbSrc = failedImages.has(i) ? '/placeholder.png' : src;
+              {displayImages.map((src, i) => {
+                const thumbSrc = failedImages.has(i) ? '/placeholder.png' : (src || '/placeholder.png');
                 return (
                   <SwiperSlide key={i}>
                     <div

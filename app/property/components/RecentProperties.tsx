@@ -1,29 +1,53 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import PropertyCard from "./PropertyCard";
 import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
 import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 import { Property } from "../types/property";
+import { usePropertyFilters } from "../context/PropertyFilterContext";
 
 export default function RecentProperties() {
   const [page, setPage] = useState(1);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const observerRef = useRef<HTMLDivElement>(null);
+  const { getApiFilters, hasActiveFilters, filters } = usePropertyFilters();
   
-  const { data: properties = [], isLoading, isFetching } = usePropertiesQuery(page);
+  const apiFilters = useMemo(() => getApiFilters(), [getApiFilters]);
+  const filtersKey = useMemo(() => 
+    `${filters.location || ''}-${filters.price || ''}-${filters.propertyId || ''}`,
+    [filters.location, filters.price, filters.propertyId]
+  );
+  
+  const { data: properties = [], isLoading, isFetching } = usePropertiesQuery(page, apiFilters);
+
+  // Reset properties when filters change
+  useEffect(() => {
+    if (hasActiveFilters()) {
+      setAllProperties([]);
+      setPage(1);
+    }
+  }, [filtersKey, hasActiveFilters]);
 
   useEffect(() => {
     if (properties.length > 0) {
       setAllProperties(prev => {
+        // If filters are active, replace instead of append
+        if (hasActiveFilters() && page === 1) {
+          return properties.map(mapApiPropertyToProperty);
+        }
+        // Otherwise, append new properties
         const newProperties = properties.filter(
           p => !prev.some(existing => existing.id === p.id.toString())
         );
         return [...prev, ...newProperties.map(mapApiPropertyToProperty)];
       });
+    } else if (hasActiveFilters() && page === 1) {
+      // Clear if no results with filters
+      setAllProperties([]);
     }
-  }, [properties]);
+  }, [properties, page, hasActiveFilters]);
 
   const loadMore = useCallback(() => {
     if (isLoading || isFetching) return;

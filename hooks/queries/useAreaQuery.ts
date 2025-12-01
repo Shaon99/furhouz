@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/apiFetch'
-import { PropertyType, PropertyTypeApiResponse } from '@/types/propertyType';
+import { Area, AreaApiResponse } from '@/types/area';
 
-export function usePropertyTypeQuery() {
-    return useQuery<PropertyType[], Error>({
-        queryKey: ['get-type'],
+export function useAreaQuery() {
+    return useQuery<Area[], Error>({
+        queryKey: ['get-areas'],
         queryFn: async () => {
-            const response = await apiFetch<PropertyTypeApiResponse>('/api/get-type');
+            const response = await apiFetch<AreaApiResponse>('/api/areas');
             return response.data;
         },
         staleTime: 1000 * 60 * 60,

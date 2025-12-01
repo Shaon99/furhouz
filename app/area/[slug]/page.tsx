@@ -1,43 +1,146 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect, useMemo } from "react";
 import PropertySearch from "@/app/property/components/PropertySearch";
 import PropertyCard from "@/app/property/components/PropertyCard";
-import LoadingSpinner from "@/components/ui/loading-spinner";
+import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
+import { SkeletonText, SkeletonHeader } from "@/components/ui/skeletons";
 import Pagination from "@/components/ui/pagination";
-import { useAreaData } from "@/lib/hooks/useAreaData";
-import { useAreaProperties } from "@/lib/hooks/useAreaProperties";
+import { useLocationDetailQuery } from "@/hooks/queries/useLocationDetailQuery";
+import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
+import { usePropertyFilters } from "@/app/property/context/PropertyFilterContext";
+import { PropertyFilterProvider } from "@/app/property/context/PropertyFilterContext";
 import FurnishedSections from "@/components/furnished/FurnishedSections";
-import type { AreaSlug } from "@/components/furnished/data";
 import { Sparkles, MapPin, Diamond, Building2 } from "lucide-react";
+import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
+import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 
-export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug }> }) {
-  const { slug } = use(params) as { slug: AreaSlug };
-
-  const { areaData, isLoading: areaLoading, error: areaError } = useAreaData(slug);
+function AreaPageContent({ slug }: { slug: string }) {
+  const { getApiFilters, hasActiveFilters } = usePropertyFilters();
+  const { data: locations = [] } = useLocationQuery();
+  const [page, setPage] = useState(1);
+  
+  // Find current location ID from slug
+  const currentLocation = useMemo(() => {
+    return locations.find(loc => loc.slug === slug);
+  }, [locations, slug]);
+  
+  // Get filters and automatically set location_id if not already set
+  const apiFilters = useMemo(() => {
+    const filters = getApiFilters();
+    // If no location filter is set, use current location
+    if (!('location_id' in filters && filters.location_id) && currentLocation) {
+      return { ...filters, location_id: currentLocation.id };
+    }
+    return filters;
+  }, [getApiFilters, currentLocation]);
+  
+  // Create a stable key for filter changes
+  const filterKey = useMemo(() => {
+    const f = apiFilters;
+    return `${('location_id' in f ? f.location_id : '') || ''}-${('minPrice' in f ? f.minPrice : '') || ''}-${('maxPrice' in f ? f.maxPrice : '') || ''}-${('property_id' in f ? f.property_id : '') || ''}`;
+  }, [apiFilters]);
+  
+  // Use filtered properties if filters are active, otherwise use location detail
+  const hasFilters = hasActiveFilters();
+  const { data: filteredProperties = [], isLoading: isLoadingFiltered } = usePropertiesQuery(page, apiFilters);
+  
   const {
-    properties,
-    pagination,
-    isLoading: propertiesLoading,
-    error: propertiesError,
-    loadPage
-  } = useAreaProperties(slug, 1, 8);
+    name,
+    description,
+    priceRange,
+    avgArea,
+    properties: locationProperties,
+    pagination: locationPagination,
+    isLoading: isLoadingLocation,
+    error,
+    loadPage: loadLocationPage,
+    faqs,
+    sections,
+    facilities,
+    why_should_rent,
+  } = useLocationDetailQuery(slug, 1, 8);
+  
+  // Reset page when filters change
+  useEffect(() => {
+    if (hasFilters) {
+      setPage(1);
+    }
+  }, [hasFilters, filterKey]);
+  
+  // Use filtered properties if filters are active, otherwise use location properties
+  const properties = hasFilters 
+    ? filteredProperties.map(mapApiPropertyToProperty)
+    : locationProperties;
+  
+  const isLoading = hasFilters ? isLoadingFiltered : isLoadingLocation;
+  
+  const pagination = hasFilters ? {
+    currentPage: page,
+    totalPages: Math.ceil(filteredProperties.length / 8) || 1,
+    totalItems: filteredProperties.length,
+    hasMore: page * 8 < filteredProperties.length,
+    itemsPerPage: 8
+  } : locationPagination;
+  
+  const loadPage = (newPage: number) => {
+    if (hasFilters) {
+      setPage(newPage);
+    } else {
+      loadLocationPage(newPage);
+    }
+  };
 
-  if (areaLoading) {
+  if (isLoading && properties.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 to-cyan-900 animate-pulse">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen bg-gradient-to-tl from-blue-50 via-white to-pink-50">
+        {/* Hero Skeleton */}
+        <section className="bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 text-white py-24 relative overflow-hidden">
+          <div className="container mx-auto text-center relative z-10">
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <SkeletonHeader height={48} className="w-12 h-12 rounded-full" />
+              <SkeletonText width="half" lines={1} className="h-12" />
+            </div>
+            <SkeletonText width="3/4" lines={1} className="h-8 mx-auto mb-10" />
+            <div className="flex flex-wrap justify-center gap-4 mt-10">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white/20 px-8 py-4 rounded-xl min-w-[180px] backdrop-blur border border-white/30">
+                  <SkeletonText width="full" lines={2} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Property Search Skeleton */}
+        <div className="max-w-[1350px] mx-auto px-2 sm:px-4 md:px-6 -mt-16 z-10 relative">
+          <div className="shadow-2xl bg-white rounded-2xl p-3 sm:p-5 md:p-8 lg:p-10 h-auto md:h-[170px]">
+            <SkeletonHeader height={60} className="rounded-xl" />
+          </div>
+        </div>
+
+        {/* Properties Grid Skeleton */}
+        <section className="container mx-auto py-20">
+          <div className="max-w-[1350px] mx-auto">
+            <SkeletonText width="half" lines={1} className="h-10 mx-auto mb-12" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
 
-  if (areaError || !areaData) {
+  if (error || !name) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-200 to-blue-200">
         <div className="text-center p-10 bg-white/70 backdrop-blur rounded-lg shadow-lg border border-pink-200 animate-fade-in">
           <h1 className="text-3xl font-extrabold text-pink-700 mb-4 flex items-center justify-center gap-2">
             <Sparkles className="w-7 h-7 text-pink-400 animate-bounce" />
-            {areaError || "Area not found"}
+            {error || "Area not found"}
           </h1>
           <p className="text-gray-700 text-lg">Please check the URL and try again.</p>
         </div>
@@ -53,15 +156,15 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-3xl md:text-4xl lg:text-7xl font-extrabold mb-5 drop-shadow-lg tracking-tight flex items-center justify-center gap-3">
             <Diamond className="inline w-10 h-10 text-cyan-200 animate-spin-slow" />
-            Properties in <span className="ml-2 text-yellow-300">{areaData.name}</span>
+            Properties in <span className="ml-2 text-yellow-300">{name}</span>
           </h1>
           <p className="text-2xl md:text-3xl mb-10 opacity-90 font-semibold drop-shadow">
-            {areaData.description}
+            {description}
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-lg mt-10">
             <StatBox icon={<Building2 className="w-6 h-6 text-indigo-400" />} label="Properties" value={pagination.totalItems} />
-            <StatBox icon={<Diamond className="w-6 h-6 text-yellow-300" />} label="Price Range" value={areaData.priceRange} />
-            <StatBox icon={<MapPin className="w-6 h-6 text-pink-300" />} label="Avg Area" value={areaData.avgArea} />
+            <StatBox icon={<Diamond className="w-6 h-6 text-yellow-300" />} label="Price Range" value={priceRange} />
+            <StatBox icon={<MapPin className="w-6 h-6 text-pink-300" />} label="Avg Area" value={avgArea} />
           </div>
         </div>
       </section>
@@ -92,65 +195,57 @@ export default function AreaPage({ params }: { params: Promise<{ slug: AreaSlug 
         <div className="max-w-[1350px] mx-auto">
           <h2 className="text-4xl font-extrabold text-center mb-12 text-indigo-900 tracking-tight drop-shadow">
             <span className="bg-gradient-to-r from-indigo-600 via-sky-500 to-fuchsia-500 text-transparent bg-clip-text animate-gradient">
-              Available Properties in {areaData.name}
+              Available Properties in {name}
             </span>
           </h2>
 
-          {/* Error message */}
-          {propertiesError && (
-            <div className="text-center py-8">
-              <p className="text-red-600 mb-4 text-lg font-semibold">{propertiesError}</p>
-              <button
-                onClick={() => loadPage(pagination.currentPage)}
-                className="px-6 py-3 bg-pink-600 text-white rounded-full hover:bg-pink-700 font-bold shadow-lg transition"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* Loading indicator */}
-          {propertiesLoading && (
-            <div className="flex justify-center mb-8">
-              <LoadingSpinner size="lg" />
-            </div>
-          )}
-
           {/* Properties Grid */}
-          {!propertiesLoading && !propertiesError && (
-            <>
-              {properties.length === 0 ? (
-                <div className="text-center py-20 text-gray-400 text-xl font-semibold">
-                  <Sparkles className="inline w-8 h-8 mr-2 text-blue-300" />
-                  No properties found in this area.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in">
-                  {properties.map((property) => (
-                    <PropertyCard key={property.slug || property.id} p={property} />
-                  ))}
-                </div>
-              )}
-            </>
+          {properties.length === 0 ? (
+            <div className="text-center py-20 text-gray-400 text-xl font-semibold">
+              <Sparkles className="inline w-8 h-8 mr-2 text-blue-300" />
+              {hasFilters ? "No properties found with the selected filters." : "No properties found in this area."}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in">
+              {properties.map((property, index) => (
+                <PropertyCard key={`${property.id}-${property.slug || index}`} p={property} />
+              ))}
+            </div>
           )}
 
           {/* Pagination Controls */}
-          {!propertiesLoading && !propertiesError && pagination.totalPages > 1 && (
+          {!isLoading && !error && pagination.totalPages > 1 && (
             <div className="mt-16 flex justify-center">
               <Pagination
                 currentPage={pagination.currentPage}
                 totalPages={pagination.totalPages}
                 onPageChange={loadPage}
-                isLoading={propertiesLoading}
+                isLoading={isLoading}
               />
             </div>
           )}
         </div>
       </section>
       <div className="container mx-auto">
-      <FurnishedSections slug={slug as AreaSlug} />
+        <FurnishedSections
+          name={name}
+          sections={sections}
+          facilities={facilities}
+          why_should_rent={why_should_rent}
+          faqs={faqs}
+        />
       </div>
     </div>
+  );
+}
+
+export default function AreaPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  
+  return (
+    <PropertyFilterProvider>
+      <AreaPageContent slug={slug} />
+    </PropertyFilterProvider>
   );
 }
 
@@ -167,4 +262,3 @@ function StatBox({ icon, value, label }: { icon: React.ReactNode, value: string 
     </div>
   );
 }
-
