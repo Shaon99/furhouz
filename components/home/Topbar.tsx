@@ -79,9 +79,7 @@ const Topbar = () => {
           <div className="w-full lg:hidden px-4">
             <Search 
               compact={true} 
-              onSearch={(place) => {
-                console.log('search:', place);
-              }} 
+              onSearch={() => {}} 
             />
           </div>
         )}

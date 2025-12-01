@@ -89,8 +89,11 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
         noSwipingClass="swiper-no-swiping"
         className="rounded-xl overflow-hidden shadow-xl"
       >
-        {(images.length > 0 ? images : ['/placeholder.png']).map((src, i) => {
-          const imageSrc = failedImages.has(i) ? '/placeholder.png' : src;
+        {(images && images.length > 0 ? images : ['/placeholder.png']).map((src, i) => {
+          // Use placeholder if image failed to load, is empty, null, or undefined
+          const imageSrc = failedImages.has(i) || !src || src.trim() === '' || src === 'null' || src === 'undefined' 
+            ? '/placeholder.png' 
+            : src;
           return (
             <SwiperSlide 
               key={i}

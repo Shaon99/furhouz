@@ -6,6 +6,7 @@ export type AreaSection = {
 export type AreaContentItem = {
   title: string;
   description?: string;
+  link?: string | null;
 };
 
 export type AreaContentSection = {
@@ -32,6 +33,9 @@ export type AreaDetails = {
   restaurants: AreaContentSection[];
   hotels: AreaContentSection[];
   embassies: AreaContentSection[];
+  academic_institutions?: AreaContentSection[];
+  hospitals?: AreaContentSection[];
+  commercial_towers?: AreaContentSection[];
   faqs: AreaFAQ[];
   final_words: string;
 };
