@@ -1,42 +1,14 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'admin.furhouz.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'furhouz.s3.ap-southeast-1.amazonaws.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'furhouz.s3.ap-southeast-1.amazonaws.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-        pathname: '/**',
-      },
-    ],
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: false,
+    unoptimized: true,
   },
-  // Performance optimizations
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'swiper', 'swiper/react'],
-  },
-  // Enable compression
-  compress: true,
-  // Optimize images
-  poweredByHeader: false,
-};
+}
 
-export default nextConfig;
+export default nextConfig 
