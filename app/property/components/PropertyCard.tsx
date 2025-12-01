@@ -1,6 +1,6 @@
 "use client";
 
-import { BedDouble, Bath, Ruler, Mail, MapPin, Star, Heart } from "lucide-react";
+import { BedDouble, Bath, Ruler, Mail, MapPin, Heart } from "lucide-react";
 import CardSlider from "./CardSlider";
 import { Property } from "../types/property";
 import Link from "next/link";
@@ -25,17 +25,15 @@ export default function PropertyCard({ p }: { p: Property }) {
               {p.code}
             </span>
           )}
-          
-          {/* Premium badge */}
-          <div className="absolute left-3 top-3 z-20 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-lg">
-            <Star className="h-3 w-3 fill-current" />
-            Premium
-          </div>
 
           {/* Heart icon */}
           <button 
-            onClick={() => setIsFavorited(!isFavorited)}
-            className="absolute right-3 top-12 z-20 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsFavorited(!isFavorited);
+            }}
+            className="absolute right-3 top-12 z-40 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
           >
             <Heart 
               className={`h-5 w-5 transition-all duration-300 ${

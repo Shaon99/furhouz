@@ -1,26 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-
-type FAQ = { q: string; a: string };
-
-const faqs: FAQ[] = [
-  {
-    q: 'What are the fees for using FurHouz?',
-    a: `We require an on-boarding period, depending on the status of the property.
-This will allows us to make any needed repairs or upgrades and furnish the home.`,
-  },
-  {
-    q: 'Is rent guaranteed?',
-    a: `Yes. No matter what. If the property is vacant, FurHouz will still pay you on-time every month
-for your entire contract term. We directly deposit rent into your bank account.`,
-  },
-  {
-    q: 'What maintenance does FurHouz cover?',
-    a: `FurHouz will cover any resident damage at no cost to the owner. For issues caused by age,
-deferred maintenance, or catastrophic event, FurHouz will repair or oversee repairs at the expense of the owner.`,
-  },
-];
+import { usePropertyOwnerDetailsQuery } from '@/hooks/queries/usePropertyOwnerDetailsQuery';
+import { SkeletonText } from '@/components/ui/skeletons';
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -40,12 +22,39 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 export default function QASection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0); // first one open (like screenshot)
+  const { data, isLoading } = usePropertyOwnerDetailsQuery();
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqs = data?.faqs || [];
+
+  if (isLoading) {
+    return (
+      <section className="py-2 pb-10 container mx-auto">
+        <div className="mx-auto max-w-[1350px] rounded-xl bg-gray-200 px-4 py-10 sm:px-8 md:px-12">
+          <div className="text-center">
+            <SkeletonText width="quarter" lines={1} className="mx-auto mb-4" />
+            <SkeletonText width="half" lines={1} className="mx-auto h-10" />
+          </div>
+          <div className="mx-auto mt-8 divide-y divide-slate-200">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="py-6">
+                <SkeletonText width="full" lines={1} className="h-8 mb-3" />
+                <SkeletonText lines={2} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (faqs.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-2 pb-10 container mx-auto">
       <div className="mx-auto max-w-[1350px] rounded-xl bg-gray-200 px-4 py-10 sm:px-8 md:px-12">
-        {/* Header */}
         <div className="text-center">
           <p className="text-xl font-medium tracking-[0.25em] text-slate-500">Q&A</p>
           <h2 className="mt-3 text-2xl font-semibold leading-tight text-slate-700 sm:text-5xl md:text-5xl tracking-tight">
@@ -53,8 +62,7 @@ export default function QASection() {
           </h2>
         </div>
 
-        {/* FAQ list */}
-        <div className="mx-auto mt-8  divide-y divide-slate-200">
+        <div className="mx-auto mt-8 divide-y divide-slate-200">
           {faqs.map((item, idx) => {
             const isOpen = openIndex === idx;
             return (
@@ -67,7 +75,7 @@ export default function QASection() {
                   aria-controls={`faq-panel-${idx}`}
                 >
                   <h3 className="text-xl font-semibold text-slate-700 sm:text-3xl">
-                    {item.q}
+                    {item.question}
                   </h3>
                   <span className="mt-1">
                     <Chevron open={isOpen}/>
@@ -81,8 +89,8 @@ export default function QASection() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="mt-3 text-slate-600">
-                      {item.a}
+                    <p className="mt-3 text-slate-600 whitespace-pre-line">
+                      {item.answer}
                     </p>
                   </div>
                 </div>

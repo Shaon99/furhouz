@@ -1,16 +1,36 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, A11y } from 'swiper/modules';
-
-const slides = [
-  { src: '/propertyownerlast.jpg', alt: 'Banani corporate customers' },
-  { src: '/propertyownerlast.jpg', alt: 'Baridhara corporate customers' },
-  { src: '/propertyownerlast.jpg', alt: 'Bashundhara corporate customers' },
-];
+import { useCorporateQuery } from '@/hooks/queries/useCorporateQuery';
+import { SkeletonText, SkeletonImage } from '@/components/ui/skeletons';
 
 export default function CorporateCustomerSlider() {
+  const { data: corporate, isLoading } = useCorporateQuery();
+  const images = corporate?.images || [];
+
+  if (isLoading) {
+    return (
+      <section className="py-12 sm:py-16 container">
+        <div className="mx-auto max-w-[1350px]">
+          <div className="text-center">
+            <SkeletonText width="half" lines={1} className="mx-auto mb-4 h-8" />
+            <SkeletonText width="3/4" lines={1} className="mx-auto h-12" />
+          </div>
+          <div className="relative mt-10 h-[42vh] min-h-[260px] sm:h-[50vh]">
+            <SkeletonImage width="100%" height="100%" className="rounded-lg" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!corporate || images.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-12 sm:py-16 container">
       <div className="mx-auto max-w-[1350px]">
@@ -29,23 +49,35 @@ export default function CorporateCustomerSlider() {
           <Swiper
             modules={[Navigation, Pagination, Autoplay, A11y]}
             slidesPerView={1}
-            loop
+            loop={images.length > 1}
             autoplay={{ delay: 3500, disableOnInteraction: false }}
             navigation
             pagination={{ clickable: true }}
             className="h-[42vh] min-h-[260px] sm:h-[50vh]"
           >
-            {slides.map((s, i) => (
+            {images.map((item, i) => (
               <SwiperSlide key={i}>
                 {/* Image area */}
                 <div className="relative mx-auto h-full w-full rounded-lg">
-                  <Image
-                    src={s.src}
-                    alt={s.alt}
-                    fill
-                    priority={i === 0}
-                    className="object-cover object-center rounded-lg"
-                  />
+                  {item.link ? (
+                    <Link href={item.link} target="_blank" rel="noopener noreferrer">
+                      <Image
+                        src={item.image || '/propertyownerlast.jpg'}
+                        alt={`Corporate customer ${i + 1}`}
+                        fill
+                        priority={i === 0}
+                        className="object-cover object-center rounded-lg"
+                      />
+                    </Link>
+                  ) : (
+                    <Image
+                      src={item.image || '/propertyownerlast.jpg'}
+                      alt={`Corporate customer ${i + 1}`}
+                      fill
+                      priority={i === 0}
+                      className="object-cover object-center rounded-lg"
+                    />
+                  )}
                 </div>
               </SwiperSlide>
             ))}

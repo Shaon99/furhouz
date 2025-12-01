@@ -142,7 +142,10 @@ export default function Search({ onSearch, compact = false }: Props) {
                         href={`/area/${location.slug}`}
                         role="option"
                         aria-selected={place === location.name}
-                        onClick={() => handleSelect(location.name)}
+                        onClick={(e) => {
+                          handleSelect(location.name);
+                          // Allow Link to navigate normally
+                        }}
                         className="
                           block w-full text-left px-4 py-3 rounded-xl
                           hover:bg-[color:var(--brand-50)]
@@ -318,7 +321,10 @@ export default function Search({ onSearch, compact = false }: Props) {
                           href={`/area/${location.slug}`}
                           role="option"
                           aria-selected={place === location.name}
-                          onClick={() => handleSelect(location.name)}
+                          onClick={(e) => {
+                            handleSelect(location.name);
+                            // Allow Link to navigate normally
+                          }}
                           className="
                             block w-full text-left px-4 py-3 rounded-xl
                             hover:bg-[color:var(--brand-50)]

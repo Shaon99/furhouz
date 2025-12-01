@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, use } from 'react';
 import { notFound } from 'next/navigation';
-import DATA from '@/lib/areaData';
+import { useAreaDetailsQuery } from '@/hooks/queries/useAreaDetailsQuery';
 import Banner from '@/components/home/Banner';
 import { ChevronUpIcon } from "lucide-react";
+import { SkeletonText } from '@/components/ui/skeletons';
 
 const brandBlue = '#0A4E8A';
 
@@ -66,46 +67,120 @@ type AreaParams = { params: Promise<{ slug: string }> };
 export default function AreaGuidePage({ params }: AreaParams) {
   const { slug } = use(params);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const data = DATA[slug];
-  if (!data) return notFound();
+  const { data: areaData, isLoading, isError } = useAreaDetailsQuery(slug);
+
+  if (isLoading) {
+    return (
+      <main>
+        <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
+          <SkeletonText lines={1} className="h-8 mb-8" />
+          <div className="mt-6 space-y-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i}>
+                <SkeletonText lines={1} className="h-6 mb-4" />
+                <SkeletonText lines={4} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (isError || !areaData) {
+    return notFound();
+  }
 
   return (
     <main>
       <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
         <h1 className="text-center font-extrabold sm:text-[28px] text-[24px]" style={{ color: brandBlue }}>
-          {data.title}
+          {areaData.name}
         </h1>
 
         <div className="mt-6 space-y-10">
-          {data.sections.map((section, idx) => {
-            const items = 'items' in section ? section.items : undefined;
-            const isObjectItems = Array.isArray(items) && items.length > 0 && typeof items[0] === 'object';
-            const isStringItems = Array.isArray(items) && items.length > 0 && typeof items[0] === 'string';
+          {/* Sections */}
+          {areaData.sections.map((section, idx) => (
+            <section key={idx}>
+              {section.title && <H2>{section.title}</H2>}
+              {section.content && (
+                <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
+                  {section.content}
+                </p>
+              )}
+            </section>
+          ))}
 
-            return (
-              <section key={idx}>
-                {section.heading && <H2>{section.heading}</H2>}
-                {isObjectItems && <ThreeColGrid items={items as { name: string; description: string }[]} />}
-                {isStringItems && <InlineBulletList items={items as string[]} />}
-                {"body" in section && section.body && (
-                  <p className=" mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start">
-                    {section.body}
-                  </p>
-                )}
-              </section>
-            );
-          })}
+          {/* Places to Visit */}
+          {areaData.placetovisit.map((section, idx) => (
+            <section key={`places-${idx}`}>
+              <H2>{section.title}</H2>
+              <ThreeColGrid 
+                items={section.content_items.map(item => ({
+                  name: item.title,
+                  description: item.description || ''
+                }))} 
+              />
+            </section>
+          ))}
+
+          {/* Restaurants */}
+          {areaData.restaurants.map((section, idx) => (
+            <section key={`restaurants-${idx}`}>
+              <H2>{section.title}</H2>
+              <ThreeColGrid 
+                items={section.content_items.map(item => ({
+                  name: item.title,
+                  description: item.description || ''
+                }))} 
+              />
+            </section>
+          ))}
+
+          {/* Hotels */}
+          {areaData.hotels.map((section, idx) => (
+            <section key={`hotels-${idx}`}>
+              <H2>{section.title}</H2>
+              <ThreeColGrid 
+                items={section.content_items.map(item => ({
+                  name: item.title,
+                  description: item.description || ''
+                }))} 
+              />
+            </section>
+          ))}
+
+          {/* Embassies */}
+          {areaData.embassies.map((section, idx) => (
+            <section key={`embassies-${idx}`}>
+              <H2>{section.title}</H2>
+              <InlineBulletList 
+                items={section.content_items.map(item => item.title)} 
+              />
+            </section>
+          ))}
+
+          {/* Final Words */}
+          {areaData.final_words && (
+            <section>
+              <H2>Final Words</H2>
+              <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
+                {areaData.final_words}
+              </p>
+            </section>
+          )}
         </div>
 
-        {data.faqs && data.faqs.length > 0 && (
-          <section className=" mt-16 max-w-[1350px]">
+        {/* FAQs */}
+        {areaData.faqs && areaData.faqs.length > 0 && (
+          <section className="mt-16 max-w-[1350px]">
             <h2 className="text-center text-[36px] font-extrabold text-[#111]">FAQ</h2>
             <div className="mt-6 rounded-xl bg-white">
-              {data.faqs.map((faq, i) => (
+              {areaData.faqs.map((faq, i) => (
                 <FaqItem
-                  key={faq.q}
-                  q={faq.q}
-                  a={faq.a}
+                  key={faq.question}
+                  q={faq.question}
+                  a={faq.answer}
                   open={openFaq === i}
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 />

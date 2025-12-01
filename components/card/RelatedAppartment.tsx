@@ -1,12 +1,14 @@
 "use client";
 
-import { BedDouble, Bath, Ruler, Mail, MapPin, Star, Heart } from "lucide-react";
+import { BedDouble, Bath, Ruler, Mail, MapPin, Heart } from "lucide-react";
 import CardSlider from "@/app/property/components/CardSlider";
+import PropertyCardSkeleton from "@/components/ui/PropertyCardSkeleton";
 import { Property } from "@/app/property/types/property";
-import { PROPERTIES } from "@/app/property/data/properties";
+import { usePropertiesQuery } from "@/hooks/queries/usePropertiesQuery";
+import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
   const [isFavorited, setIsFavorited] = useState(false);
@@ -26,17 +28,15 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
               {p.code}
             </span>
           )}
-          
-          {/* Premium badge */}
-          <div className="absolute left-3 top-3 z-20 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-lg">
-            <Star className="h-3 w-3 fill-current" />
-            Premium
-          </div>
 
           {/* Heart icon */}
           <button 
-            onClick={() => setIsFavorited(!isFavorited)}
-            className="absolute right-3 top-12 z-20 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsFavorited(!isFavorited);
+            }}
+            className="absolute right-3 top-12 z-40 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
           >
             <Heart 
               className={`h-5 w-5 transition-all duration-300 ${
@@ -126,7 +126,12 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
 };
 
 const RelatedAppartment: React.FC = () => {
-  const relatedProperties = PROPERTIES.slice(0, 4)
+  const { data: properties = [], isLoading } = usePropertiesQuery(1);
+  
+  const relatedProperties = useMemo(() => {
+    if (properties.length === 0) return [];
+    return properties.slice(0, 4).map(mapApiPropertyToProperty);
+  }, [properties]);
 
   return (
     <div className="w-full py-8 max-w-[1350px] mx-auto px-1">
@@ -138,11 +143,20 @@ const RelatedAppartment: React.FC = () => {
         </h2>
       </div>
 
-      {/* Property Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {relatedProperties.map((property) => (
-          <PropertyCard key={property.id} p={property} />
-        ))}
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <PropertyCardSkeleton key={i} />
+          ))
+        ) : relatedProperties.length > 0 ? (
+          relatedProperties.map((property) => (
+            <PropertyCard key={property.id} p={property} />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-slate-500">
+            No related properties found.
+          </div>
+        )}
       </div>
     </div>
   )

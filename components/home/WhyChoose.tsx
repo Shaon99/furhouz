@@ -1,16 +1,19 @@
-import Image from "next/image";
+"use client";
 
-type Feature = {
-  title: string;
-  desc: string;
-  icon: string; 
-  iconAlt?: string;
-};
+import { useState } from "react";
+import Image from "next/image";
+import { useWhyChooseQuery } from "@/hooks/queries/useWhyChooseQuery";
+import { SkeletonImage, SkeletonText } from "@/components/ui/skeletons";
 
 type Props = {
   heading?: string;
   brandWord?: string; 
   className?: string;
+};
+
+const Img = ({ src, alt, ...props }: { src?: string; alt: string; [key: string]: unknown }) => {
+  const [imgSrc, setImgSrc] = useState(src || "/placeholder.png");
+  return <Image {...props} src={imgSrc} alt={alt} onError={() => setImgSrc("/placeholder.png")} />;
 };
 
 /* WHY CHOOSE SECTION (FurHouz style) */
@@ -19,53 +22,29 @@ export default function WhyChooseSection({
   brandWord = "FurHouz",
   className = "",
 }: Props) {
-  const FEATURES: Feature[] = [
-    {
-      icon: "/cities.png",
-      title: "Multiple Cities",
-      desc: "With luxury apartments available across several areas, and more in the pipeline, you can be sure you'll find an apartment close to where you want to be.",
-    },
-    {
-      icon: "/experties.png",
-      title: "Local Experts",
-      desc: "Our teams know the cities we operate in like the back of their hand. On hand to help you feel at home.",
-    },
-    {
-      icon: "/furnished.png",
-      title: "Fully Furnished",
-      desc: "Our range of apartment types means you can live with us through University and beyond into professional life – always guaranteed of the same quality and service.",
-    },
-    {
-      icon: "/apartment.png",
-      title: "Apartments for Life",
-      desc: "Our range of apartment types means you can live with us through University and beyond into professional life – always guaranteed of the same quality and service.",
-    },
-    {
-      icon: "/utility.png",
-      title: "All Utilities Included",
-      desc: "All our apartments come fully furnished to the highest standard, from cozy living furniture to comfy beds and top-brand appliances.",
-    },
-    {
-      icon: "/PManager.png",
-      title: "Dedicated Property Manager",
-      desc: "Every tenant has access to a dedicated property manager for help with any issues or questions.",
-    },
-    {
-      icon: "/award.png",
-      title: "Award-winning",
-      desc: "We’ve won a ton of awards for customer service and dedication to sustainability.",
-    },
-    {
-    icon: "/Qguaranteed.png",
-      title: "Quality guaranteed",
-      desc: "From studios to two-beds, all apartments meet the same high standards throughout.",
-    },
-    {
-      icon: "/design.png",
-      title: "Designed by Us",
-      desc: "Designed and built by our in-house teams with feedback from tenants on how they want to live.",
-    },
-  ];
+  const { data, isLoading } = useWhyChooseQuery();
+
+  if (isLoading) {
+    return (
+      <section className={`container py-10 lg:py-24 ${className}`}>
+        <div className="text-center mb-10">
+          <SkeletonText width="half" lines={1} className="mx-auto mb-2" />
+          <SkeletonText width="quarter" lines={1} className="mx-auto" />
+        </div>
+        <div className="mt-10 grid grid-cols-2 gap-10 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="text-center">
+              <SkeletonImage width={80} height={80} rounded className="mx-auto mb-4" />
+              <SkeletonText width="full" lines={1} className="mb-2" />
+              <SkeletonText lines={2} />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (!data || data.length === 0) return null;
 
   return (
     <section className={`container py-10 lg:py-24 ${className}`}>
@@ -84,19 +63,19 @@ export default function WhyChooseSection({
 
         {/* Grid */}
         <div className="mt-10 grid grid-cols-2 gap-10 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <article key={i} className="text-center mx-auto">
+          {data.map((item, i) => (
+            <article key={item.id} className="text-center mx-auto">
               <div className="mx-auto size-14 sm:size-20 mb-4 sm:mb-5">
-                <Image
-                  src={f.icon}
-                  alt={f.iconAlt ?? f.title}
+                <Img
+                  src={item.image}
+                  alt={item.title}
                   width={80}
                   height={80}
                   className="w-full h-full object-contain"
                   priority={i < 3}
                 />
               </div>
-              <h5 className="font-bold text-sm sm:text-lg capitalize">{f.title}</h5>
+              <h5 className="font-bold text-sm sm:text-lg capitalize">{item.title}</h5>
               <p
                 className="
                   muted mt-2 text-xs sm:text-sm leading-relaxed
@@ -110,7 +89,7 @@ export default function WhyChooseSection({
                   overflow: "hidden"
                 }}
               >
-                {f.desc}
+                {item.description}
               </p>
             </article>
           ))}
