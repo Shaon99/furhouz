@@ -38,9 +38,4 @@ export type LocationDetailData = {
   properties: PropertyApiItem[];
 };
 
-export type LocationDetailApiResponse = {
-  success: boolean;
-  message: string;
-  data: LocationDetailData;
-};
 

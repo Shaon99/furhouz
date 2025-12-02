@@ -18,7 +18,7 @@ type CorporateRequestResponse = {
 export function useCorporateRequestMutation() {
   return useMutation({
     mutationFn: (data: CorporateRequestData) =>
-      apiFetch<CorporateRequestResponse>('https://admin.furhouz.com/api/corporate-request', {
+      apiFetch<CorporateRequestResponse>('/api/corporate-request', {
         method: 'POST',
         body: JSON.stringify(data),
       }),

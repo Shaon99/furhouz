@@ -6,11 +6,3 @@ export type HomepageSection = {
   link: string | null;
 }
 
-export type HomepageSectionApiResponse = {
-  success: boolean;
-  message: string;
-  data: {
-    [key: string]: HomepageSection;
-  };
-}
-

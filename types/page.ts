@@ -5,9 +5,4 @@ export type Page = {
   description: string; // HTML content
 }
 
-export type PageApiResponse = {
-  success: boolean;
-  message: string;
-  data: Page[];
-}
 

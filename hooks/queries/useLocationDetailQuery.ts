@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState, useEffect, useMemo } from 'react'
 import { apiFetch } from '@/lib/apiFetch'
-import { LocationDetailApiResponse, LocationDetailData } from '@/types/locationDetail'
+import { LocationDetailData } from '@/types/locationDetail'
 import { Property } from '@/app/property/types/property'
 import { mapApiPropertyToProperty } from '@/lib/propertyMapper'
 
@@ -40,15 +40,12 @@ export function useLocationDetailQuery(
   
   const { data, isLoading, error } = useQuery<LocationDetailData, Error>({
     queryKey: ['location-detail', slug],
-    queryFn: async () => {
-      const response: LocationDetailApiResponse = await apiFetch(`/api/location/${slug}`)
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Location not found')
-      }
-      return response.data
-    },
+    queryFn: () => apiFetch<LocationDetailData>(`/api/location/${slug}`),
     enabled: !!slug,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { Settings, SettingsApiResponse } from '@/types/settings';
+import { Settings,} from '@/types/settings';
 import type { Metadata } from 'next';
 
 
@@ -20,13 +20,9 @@ export async function fetchSettings(): Promise<Settings> {
       throw new Error(`Failed to fetch settings: ${response.statusText}`);
     }
 
-    const data: SettingsApiResponse = await response.json();
+    const data: Settings = await response.json();
     
-    if (!data.success || !data.data) {
-      throw new Error('Invalid settings response');
-    }
-
-    return data.data;
+    return data;
   } catch (error) {
     console.error('Error fetching settings:', error);
     // Return default settings as fallback

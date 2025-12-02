@@ -18,9 +18,3 @@ export type Settings = {
   meta_description: string;
 }
 
-export type SettingsApiResponse = {
-  success: boolean;
-  message: string;
-  data: Settings;
-}
-

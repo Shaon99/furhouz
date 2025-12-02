@@ -7,9 +7,3 @@ export type Testimonial = {
   description: string | null;
 }
 
-export type TestimonialApiResponse = {
-  success: boolean;
-  message: string;
-  data: Testimonial[];
-}
-

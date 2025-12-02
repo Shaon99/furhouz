@@ -1,22 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/apiFetch'
-import { CorporateBenefit, CorporateBenefitApiResponse } from '@/types/corporateBenefit';
+import { CorporateBenefit } from '@/types/corporateBenefit';
 
 export function useCorporateBenefitQuery() {
     return useQuery<CorporateBenefit[], Error>({
         queryKey: ['corporate-benefit'],
-        queryFn: async () => {
-            const response: CorporateBenefitApiResponse = await apiFetch<CorporateBenefitApiResponse>('/api/get-corporate-benefit');
-            
-            if (!response.success || !response.data) {
-                throw new Error('Corporate benefits not found');
-            }
-            
-            return response.data;
-        },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        queryFn: () => apiFetch<CorporateBenefit[]>('/api/get-corporate-benefit'),
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
-        refetchOnMount: true,
+        refetchOnMount: false,
         refetchOnReconnect: false,
     });
 }
