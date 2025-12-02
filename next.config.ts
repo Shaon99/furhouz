@@ -1,14 +1,15 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
+import type { NextConfig } from "next";
 
-export default nextConfig 
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'admin.furhouz.com',
+        pathname: '/**',
+      },
+    ],
+  },
+};
+
+export default nextConfig;
