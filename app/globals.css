@@ -2,8 +2,6 @@
 @import "swiper/css/navigation";
 @import "swiper/css/pagination";
 
-
-/* Tailwind v4 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -83,7 +81,8 @@
 }
 
 /* ============================
-   Tailwind Theme Tokens (v4)
+   Tailwind Theme Tokens (v3)
+   Note: Theme customization is done in tailwind.config.js
    ============================ */
 @theme inline {
   --color-background: var(--background);

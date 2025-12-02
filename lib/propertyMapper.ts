@@ -44,12 +44,18 @@ export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property
     images = galleryImages;
   }
   
-  // Remove duplicates and ensure we have at least placeholder
-  images = [...new Set(images.filter(img => img && img.trim() !== ''))];
-  
+  // Remove duplicates and filter out invalid images
+  images = [...new Set(images.filter(img => img && typeof img === 'string' && img.trim() !== '' && img !== 'null' && img !== 'undefined'))];
+
+  // Ensure we always have at least placeholder.png
+  // If no valid images found, use placeholder
+  if (images.length === 0) {
+    images = ['/placeholder.png'];
+  }
+
   // Debug logging
   if (typeof window !== 'undefined' && images.length === 0) {
-    console.warn('PropertyMapper: No images found', {
+    console.warn('PropertyMapper: No images found, using placeholder', {
       propertyId: apiProperty.id,
       mainImage: apiProperty.image,
       galleries: apiProperty.galleries,
@@ -68,7 +74,7 @@ export function mapApiPropertyToProperty(apiProperty: PropertyApiItem): Property
     areaSft: apiProperty.sqf ? parseInt(apiProperty.sqf) : 0,
     beds: parseInt(apiProperty.bed) || 0,
     baths: parseInt(apiProperty.bath) || 0,
-    images: images.length > 0 ? images : ['/placeholder.png'],
+    images: images,
     typeId: apiProperty.type?.id,
     typeTitle: apiProperty.type?.title,
     garage: apiProperty.grage ? parseInt(apiProperty.grage) : undefined,

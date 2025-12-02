@@ -38,7 +38,7 @@ export default function FurnishedProperty({
 
       {/* Right: Enquiry Form */}
       <div className="lg:col-span-1">
-        <EnquiryForm defaultMessage={defaultMsg} />
+        <EnquiryForm defaultMessage={defaultMsg} propertyId={p?.id?.toString() || ""} />
         <div className="mt-6 text-center">
           <Link
             href={`/property/${propertySlug}`}

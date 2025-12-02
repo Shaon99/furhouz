@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
+import { usePropertyRequestMutation } from "@/hooks/queries/usePropertyRequestMutation";
 import { SkeletonLogo } from "@/components/ui/skeletons";
 
 const FormSchema = z.object({
@@ -18,39 +19,61 @@ const FormSchema = z.object({
     .string()
     .min(6, "Enter valid phone")
     .regex(/^[0-9+\-()\s]*$/, "Digits and + - ( ) only"),
-  message: z.string().min(5, "Write a short message")
+  message: z.string().min(5, "Write a short message"),
+  property_id: z.string().min(1, "Property ID is required")
 });
 
 type FormValues = z.infer<typeof FormSchema>;
 
 export default function EnquiryForm({
   defaultMessage,
-  whatsappNumber
+  whatsappNumber,
+  propertyId
 }: {
   defaultMessage: string;
   whatsappNumber?: string;
+  propertyId: string;
 }) {
   const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
+  const propertyRequestMutation = usePropertyRequestMutation();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    reset,
+    formState: { errors }
   } = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
-      message: defaultMessage
+      message: defaultMessage,
+      property_id: propertyId
     }
   });
 
   const waNumber = whatsappNumber || settings?.whatsapp_number;
+  const isSubmitting = propertyRequestMutation.isPending;
 
   const onSubmit = async (data: FormValues) => {
-    // TODO: hit your API endpoint
-    console.log("ENQUIRY_FORM_DATA", data);
-    alert("Message sent (demo). Replace with real API call.");
+    try {
+      const result = await propertyRequestMutation.mutateAsync(data);
+      if (result.success) {
+        alert("Thank you! Your enquiry has been sent successfully.");
+        reset({ name: "", email: "", phone: "", message: defaultMessage, property_id: propertyId });
+      } else {
+        alert(result.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      const err = error as { body?: { errors?: Record<string, string[]> }; message?: string };
+      const errors = err?.body?.errors;
+      if (errors) {
+        const msg = Object.entries(errors).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n");
+        alert(`Validation Error:\n${msg}`);
+      } else {
+        alert(err?.message || "Failed to send enquiry. Please try again.");
+      }
+    }
   };
 
   const waLink = waNumber 
@@ -72,6 +95,7 @@ export default function EnquiryForm({
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-3">
+        <input type="hidden" {...register("property_id")} />
         <div>
           <Input placeholder="Full Name" {...register("name")} />
           {errors.name && (
@@ -101,7 +125,7 @@ export default function EnquiryForm({
 
         <div className="flex gap-2">
           <Button type="submit" disabled={isSubmitting} className="px-6">
-            Send Message
+            {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
           {waNumber && (
             <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
