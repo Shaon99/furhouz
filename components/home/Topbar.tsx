@@ -32,6 +32,9 @@ const Topbar = () => {
   const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
 
   useEffect(() => {
+    // Only run on client side to prevent hydration mismatch
+    if (typeof window === 'undefined') return;
+
     // Set initial scroll state based on current scroll position
     const checkScroll = () => {
       if (window.scrollY > 10) {
@@ -40,16 +43,18 @@ const Topbar = () => {
         setIsScrolled(false);
       }
     };
-    
-    // Check initial scroll position
-    checkScroll();
-    
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      checkScroll();
+    });
+
     // Add scroll listener for all pages
     const onScroll = () => {
       checkScroll();
     };
-    
-    window.addEventListener('scroll', onScroll);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [isLayoutUsage]);
 
@@ -77,13 +82,13 @@ const Topbar = () => {
         {/* Mobile/MD: Show only Search when scrolled, hide logo and menu */}
         {showSearchOnly && (
           <div className="w-full lg:hidden px-4">
-            <Search 
-              compact={true} 
-              onSearch={() => {}} 
+            <Search
+              compact={true}
+              onSearch={() => { }}
             />
           </div>
         )}
-        
+
         {/* Left: Logo - hidden on mobile/md when scrolled */}
         <div className={`flex items-center min-w-[120px] ${showSearchOnly ? 'hidden lg:flex' : ''}`}>
           <Link href="/">
@@ -95,8 +100,8 @@ const Topbar = () => {
           </Link>
         </div>
 
-        
-        
+
+
         {/* Center: Nav Links (hidden on md and down) */}
         <nav className="flex-1 flex justify-center">
           <div className={`hidden lg:flex items-center space-x-8 font-bold uppercase tracking-wider ${navTextClass} text-[18px]`}>
@@ -106,9 +111,9 @@ const Topbar = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`hover:text-[#00A6D6] transition-colors ${
-                    isActive ? 'text-[#00A6D6]' : ''
-                  }`}
+                  prefetch={true}
+                  className={`hover:text-[#00A6D6] transition-colors ${isActive ? 'text-[#00A6D6]' : ''
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -154,9 +159,9 @@ const Topbar = () => {
                     <SheetClose asChild key={link.href}>
                       <Link
                         href={link.href}
-                        className={`hover:text-[#00A6D6] transition-colors ${
-                          isActive ? 'text-[#00A6D6]' : ''
-                        }`}
+                        prefetch={true}
+                        className={`hover:text-[#00A6D6] transition-colors ${isActive ? 'text-[#00A6D6]' : ''
+                          }`}
                       >
                         {link.label}
                       </Link>
