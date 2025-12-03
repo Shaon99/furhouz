@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/apiFetch'
-import { PropertiesApiResponse, PropertyApiItem } from '@/types/propertyApi';
+import { PropertyApiItem } from '@/types/propertyApi';
 
 type PropertyFilters = {
   location_id?: number;
@@ -15,7 +15,7 @@ export function usePropertiesQuery(
 ) {
     return useQuery<PropertyApiItem[], Error>({
         queryKey: ['properties', page, filters],
-        queryFn: async () => {
+        queryFn: () => {
             const params = new URLSearchParams();
             params.append('page', page.toString());
             
@@ -32,12 +32,11 @@ export function usePropertiesQuery(
                 params.append('property_id', filters.property_id);
             }
             
-            const data: PropertiesApiResponse = await apiFetch<PropertiesApiResponse>(`/api/properties?${params.toString()}`);
-            return data.data;
+            return apiFetch<PropertyApiItem[]>(`/api/properties?${params.toString()}`);
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
-        refetchOnMount: true,
+        refetchOnMount: false,
         refetchOnReconnect: false,
     });
 }

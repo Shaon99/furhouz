@@ -19,9 +19,4 @@ export type AboutUsData = {
   final_description: string;
 }
 
-export type AboutUsApiResponse = {
-  success: boolean;
-  message: string;
-  data: AboutUsData;
-}
 

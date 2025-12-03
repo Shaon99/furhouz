@@ -4,9 +4,3 @@ export type FAQ = {
   answer: string; // HTML content
 }
 
-export type FAQApiResponse = {
-  success: boolean;
-  message: string;
-  data: FAQ[];
-}
-

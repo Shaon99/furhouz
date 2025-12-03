@@ -5,9 +5,4 @@ export type CorporateBenefit = {
   description: string;
 }
 
-export type CorporateBenefitApiResponse = {
-  success: boolean;
-  message: string;
-  data: CorporateBenefit[];
-}
 

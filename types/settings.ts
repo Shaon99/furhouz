@@ -12,11 +12,9 @@ export type Settings = {
   whatsapp_number: string;
   phone_number: string;
   email_address: string;
-}
-
-export type SettingsApiResponse = {
-  success: boolean;
-  message: string;
-  data: Settings;
+  copyright_text: string | null;
+  meta_title: string;
+  meta_image: string;
+  meta_description: string;
 }
 

@@ -18,7 +18,7 @@ type TenantRequestResponse = {
 export function useTenantRequestMutation() {
   return useMutation({
     mutationFn: (data: TenantRequestData) =>
-      apiFetch<TenantRequestResponse>('https://admin.furhouz.com/api/tenant-request', {
+      apiFetch<TenantRequestResponse>('/api/tenant-request', {
         method: 'POST',
         body: JSON.stringify(data),
       }),

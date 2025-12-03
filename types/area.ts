@@ -5,9 +5,3 @@ export type Area = {
   image: string;
 }
 
-export type AreaApiResponse = {
-  success: boolean;
-  message: string;
-  data: Area[];
-}
-

@@ -17,7 +17,7 @@ type ContactRequestResponse = {
 export function useContactRequestMutation() {
   return useMutation({
     mutationFn: (data: ContactRequestData) =>
-      apiFetch<ContactRequestResponse>('https://admin.furhouz.com/api/contact-request', {
+      apiFetch<ContactRequestResponse>('/api/contact-request', {
         method: 'POST',
         body: JSON.stringify(data),
       }),

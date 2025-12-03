@@ -5,9 +5,3 @@ export type WhyChoose = {
   description: string;
 }
 
-export type WhyChooseApiResponse = {
-  success: boolean;
-  message: string;
-  data: WhyChoose[];
-}
-

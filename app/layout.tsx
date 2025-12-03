@@ -6,8 +6,7 @@ import Topbar from "@/components/home/Topbar";
 import { Providers } from "@/lib/providers";
 import NextTopLoader from "nextjs-toploader";
 import MetaTags from "@/components/global/MetaTags";
-import SuppressHydrationWarning from "@/components/global/SuppressHydrationWarning";
-import ScrollToTop from "@/components/global/ScrollToTop";
+import { fetchSettings } from "@/lib/settings";
 
 /* ===== Font ===== */
 const inter = Inter({
@@ -16,20 +15,31 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "FurHouz",
-  description: "FurHouz is a property platform that helps you find your dream home.",
-  icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
-  openGraph: {
-    title: "FurHouz",
-    description: "FurHouz is a property platform that helps you find your dream home.",
-    images: '/logo.png',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchSettings();
+  
+  return {
+    title: settings.meta_title || settings.site_name,
+    description: settings.meta_description || '',
+    icons: {
+      icon: settings.favicon || '/logo.png',
+      shortcut: settings.favicon || '/logo.png',
+      apple: settings.favicon || '/logo.png',
+    },
+    openGraph: {
+      title: settings.meta_title || settings.site_name,
+      description: settings.meta_description || '',
+      images: settings.meta_image ? [{ url: settings.meta_image }] : undefined,
+      siteName: settings.site_name,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: settings.meta_title || settings.site_name,
+      description: settings.meta_description || '',
+      images: settings.meta_image ? [settings.meta_image] : undefined,
+    },
+  };
+}
 
 /* ===== Root Layout ===== */
 export default function RootLayout({
