@@ -6,9 +6,3 @@ export type Location = {
   description: string;
 }
 
-export type LocationApiResponse = {
-  success: boolean;
-  message: string;
-  data: Location[];
-}
-

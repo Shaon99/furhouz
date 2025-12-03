@@ -25,7 +25,7 @@ type OwnerRequestResponse = {
 export function useOwnerRequestMutation() {
   return useMutation({
     mutationFn: (data: OwnerRequestData) =>
-      apiFetch<OwnerRequestResponse>('https://admin.furhouz.com/api/owner-request', {
+      apiFetch<OwnerRequestResponse>('/api/owner-request', {
         method: 'POST',
         body: JSON.stringify(data),
       }),

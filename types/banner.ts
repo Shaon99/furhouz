@@ -4,9 +4,3 @@ export type Banner = {
   title: string;
   description: string;
 }
-
-export type BannerApiResponse = {
-  success: boolean;
-  message: string;
-  data: Banner[];
-}

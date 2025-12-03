@@ -12,9 +12,4 @@ export type Corporate = {
   images: CorporateImage[];
 }
 
-export type CorporateApiResponse = {
-  success: boolean;
-  message: string;
-  data: Corporate;
-}
 

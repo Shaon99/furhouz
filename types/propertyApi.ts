@@ -41,35 +41,4 @@ export type PropertyApiItem = {
   service_charge?: string;
 }
 
-export type PropertiesApiResponse = {
-  success: boolean;
-  status: number;
-  data: PropertyApiItem[];
-  links: {
-    first: [string, string] | null;
-    last: [string, string] | null;
-    prev: [string, string] | null;
-    next: [string, string] | null;
-  };
-  meta: {
-    current_page: [number, number];
-    from: [number, number];
-    last_page: [number, number];
-    links: Array<{
-      url: string | null;
-      label: string;
-      active: boolean;
-    }>;
-    path: string;
-    per_page: [number, number];
-    to: [number, number];
-    total: [number, number];
-  };
-}
-
-export type PropertyApiResponse = {
-  success: boolean;
-  status: number;
-  data: PropertyApiItem[];
-}
 

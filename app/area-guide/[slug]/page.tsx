@@ -5,6 +5,7 @@ import { useAreaDetailsQuery } from '@/hooks/queries/useAreaDetailsQuery';
 import Banner from '@/components/home/Banner';
 import { ChevronUpIcon } from "lucide-react";
 import { SkeletonText } from '@/components/ui/skeletons';
+import Head from 'next/head';
 
 const brandBlue = '#0A4E8A';
 
@@ -69,21 +70,36 @@ export default function AreaGuidePage({ params }: AreaParams) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const { data: areaData, isLoading, isError } = useAreaDetailsQuery(slug);
 
+  // All meta info set to null as per instructions
+  const meta_title = null;
+  const meta_description = null;
+  const meta_keywords = null;
+  const meta_image = null;
+
   if (isLoading) {
     return (
-      <main>
-        <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
-          <SkeletonText lines={1} className="h-8 mb-8" />
-          <div className="mt-6 space-y-10">
-            {[1, 2, 3].map((i) => (
-              <div key={i}>
-                <SkeletonText lines={1} className="h-6 mb-4" />
-                <SkeletonText lines={4} />
-              </div>
-            ))}
+      <>
+        <Head>
+          <title>{meta_title}</title>
+          <meta name="description" content={meta_description ?? ''} />
+          <meta name="keywords" content={meta_keywords ?? ''} />
+          {/* If meta_image should be used for og:image */}
+          {meta_image && <meta property="og:image" content={meta_image} />}
+        </Head>
+        <main>
+          <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
+            <SkeletonText lines={1} className="h-8 mb-8" />
+            <div className="mt-6 space-y-10">
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <SkeletonText lines={1} className="h-6 mb-4" />
+                  <SkeletonText lines={4} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
@@ -92,104 +108,143 @@ export default function AreaGuidePage({ params }: AreaParams) {
   }
 
   return (
-    <main>
-      <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
-        <h1 className="text-center font-extrabold sm:text-[28px] text-[24px]" style={{ color: brandBlue }}>
-          {areaData.name}
-        </h1>
+    <>
+      <Head>
+        <title>{meta_title}</title>
+        <meta name="description" content={meta_description ?? ''} />
+        <meta name="keywords" content={meta_keywords ?? ''} />
+        {/* If meta_image should be used for og:image */}
+        {meta_image && <meta property="og:image" content={meta_image} />}
+      </Head>
+      <main>
+        <div className="container mx-auto w-full max-w-[1350px] pt-8 pb-12">
+          <h1 className="text-center font-extrabold sm:text-[28px] text-[24px]" style={{ color: brandBlue }}>
+            {areaData.name}
+          </h1>
 
-        <div className="mt-6 space-y-10">
-          {/* Sections */}
-          {areaData.sections.map((section, idx) => (
-            <section key={idx}>
-              {section.title && <H2>{section.title}</H2>}
-              {section.content && (
+          <div className="mt-6 space-y-10">
+            {/* Sections */}
+            {areaData.sections.map((section, idx) => (
+              <section key={idx}>
+                {section.title && <H2>{section.title}</H2>}
+                {section.content && (
+                  <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
+                    {section.content}
+                  </p>
+                )}
+              </section>
+            ))}
+
+            {/* Places to Visit */}
+            {areaData.placetovisit.map((section, idx) => (
+              <section key={`places-${idx}`}>
+                <H2>{section.title}</H2>
+                <ThreeColGrid
+                  items={section.content_items.map(item => ({
+                    name: item.title,
+                    description: item.description || ''
+                  }))}
+                />
+              </section>
+            ))}
+
+            {/* Restaurants */}
+            {areaData.restaurants.map((section, idx) => (
+              <section key={`restaurants-${idx}`}>
+                <H2>{section.title}</H2>
+                <ThreeColGrid
+                  items={section.content_items.map(item => ({
+                    name: item.title,
+                    description: item.description || ''
+                  }))}
+                />
+              </section>
+            ))}
+
+            {/* Hotels */}
+            {areaData.hotels.map((section, idx) => (
+              <section key={`hotels-${idx}`}>
+                <H2>{section.title}</H2>
+                <ThreeColGrid
+                  items={section.content_items.map(item => ({
+                    name: item.title,
+                    description: item.description || ''
+                  }))}
+                />
+              </section>
+            ))}
+
+            {/* Academic Institutions */}
+            {areaData.academic_institutions?.map((section, idx) => (
+              <section key={`academic-institutions-${idx}`}>
+                <H2>{section.title}</H2>
+                <InlineBulletList
+                  items={section.content_items.map(item => item.title)}
+                />
+              </section>
+            ))}
+
+            {/* Hospitals */}
+            {areaData.hospitals?.map((section, idx) => (
+              <section key={`hospitals-${idx}`}>
+                <H2>{section.title}</H2>
+                <InlineBulletList
+                  items={section.content_items.map(item => item.title)}
+                />
+              </section>
+            ))}
+
+            {/* Embassies */}
+            {areaData.embassies?.map((section, idx) => (
+              <section key={`embassies-${idx}`}>
+                <H2>{section.title}</H2>
+                <InlineBulletList
+                  items={section.content_items.map(item => item.title)}
+                />
+              </section>
+            ))}
+
+            {/* commercial towers */}
+            {areaData.commercial_towers?.map((section, idx) => (
+              <section key={`commercial-towers-${idx}`}>
+                <H2>{section.title}</H2>
+                <InlineBulletList
+                  items={section.content_items.map(item => item.title)}
+                />
+              </section>
+            ))}
+
+            {/* Final Words */}
+            {areaData.final_words && (
+              <section>
+                <H2>Final Words</H2>
                 <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
-                  {section.content}
+                  {areaData.final_words}
                 </p>
-              )}
-            </section>
-          ))}
+              </section>
+            )}
+          </div>
 
-          {/* Places to Visit */}
-          {areaData.placetovisit.map((section, idx) => (
-            <section key={`places-${idx}`}>
-              <H2>{section.title}</H2>
-              <ThreeColGrid 
-                items={section.content_items.map(item => ({
-                  name: item.title,
-                  description: item.description || ''
-                }))} 
-              />
-            </section>
-          ))}
-
-          {/* Restaurants */}
-          {areaData.restaurants.map((section, idx) => (
-            <section key={`restaurants-${idx}`}>
-              <H2>{section.title}</H2>
-              <ThreeColGrid 
-                items={section.content_items.map(item => ({
-                  name: item.title,
-                  description: item.description || ''
-                }))} 
-              />
-            </section>
-          ))}
-
-          {/* Hotels */}
-          {areaData.hotels.map((section, idx) => (
-            <section key={`hotels-${idx}`}>
-              <H2>{section.title}</H2>
-              <ThreeColGrid 
-                items={section.content_items.map(item => ({
-                  name: item.title,
-                  description: item.description || ''
-                }))} 
-              />
-            </section>
-          ))}
-
-          {/* Embassies */}
-          {areaData.embassies.map((section, idx) => (
-            <section key={`embassies-${idx}`}>
-              <H2>{section.title}</H2>
-              <InlineBulletList 
-                items={section.content_items.map(item => item.title)} 
-              />
-            </section>
-          ))}
-
-          {/* Final Words */}
-          {areaData.final_words && (
-            <section>
-              <H2>Final Words</H2>
-              <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
-                {areaData.final_words}
-              </p>
+          {/* FAQs */}
+          {areaData.faqs && areaData.faqs.length > 0 && (
+            <section className="mt-16 max-w-[1350px]">
+              <h2 className="text-center text-[36px] font-extrabold text-[#111]">FAQ</h2>
+              <div className="mt-6 rounded-xl bg-white">
+                {areaData.faqs.map((faq, i) => (
+                  <FaqItem
+                    key={faq.question}
+                    q={faq.question}
+                    a={faq.answer}
+                    open={openFaq === i}
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  />
+                ))}
+              </div>
             </section>
           )}
         </div>
-
-        {/* FAQs */}
-        {areaData.faqs && areaData.faqs.length > 0 && (
-          <section className="mt-16 max-w-[1350px]">
-            <h2 className="text-center text-[36px] font-extrabold text-[#111]">FAQ</h2>
-            <div className="mt-6 rounded-xl bg-white">
-              {areaData.faqs.map((faq, i) => (
-                <FaqItem
-                  key={faq.question}
-                  q={faq.question}
-                  a={faq.answer}
-                  open={openFaq === i}
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
-      <Banner />
-    </main>
+        <Banner />
+      </main>
+    </>
   );
 }

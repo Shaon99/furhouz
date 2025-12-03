@@ -106,6 +106,13 @@ class HttpError extends Error {
       throw new HttpError(message, res.status, parsed ?? rawText);
     }
   
-    return (isJson ? (parsed as T) : (rawText as unknown as T));
+    const result = isJson ? (parsed as T) : (rawText as unknown as T);
+    
+    // If response has a data property (ApiResponse structure), extract it
+    if (result && typeof result === 'object' && 'data' in result) {
+      return (result as { data: T }).data;
+    }
+    
+    return result;
   }
   

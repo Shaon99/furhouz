@@ -40,9 +40,4 @@ export type AreaDetails = {
   final_words: string;
 };
 
-export type AreaDetailsApiResponse = {
-  success: boolean;
-  message: string;
-  data: AreaDetails;
-};
 

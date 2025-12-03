@@ -31,9 +31,4 @@ export type HomepageContent = {
   locations: HomepageLocation[];
 }
 
-export type HomepageContentApiResponse = {
-  success: boolean;
-  message: string;
-  data: HomepageContent;
-}
 

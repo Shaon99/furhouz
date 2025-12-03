@@ -25,9 +25,4 @@ export type PropertyOwnerDetails = {
   gallery_images: PropertyOwnerGalleryImage[];
 }
 
-export type PropertyOwnerDetailsApiResponse = {
-  success: boolean;
-  message: string;
-  data: PropertyOwnerDetails;
-}
 
