@@ -1,9 +1,9 @@
 "use client";
 
-import Image from 'next/image'
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { usePathname } from "next/navigation";
 
 import {
   Sheet,
@@ -11,12 +11,12 @@ import {
   SheetHeader,
   SheetTrigger,
   SheetClose,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 
 import { Menu } from "lucide-react";
-import Search from './Search';
-import { useSettingsQuery } from '@/hooks/queries/useSettingsQuery';
-import { SkeletonLogo } from '@/components/ui/skeletons';
+import Search from "./Search";
+import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
+import { SkeletonLogo } from "@/components/ui/skeletons";
 
 const NAV_LINKS = [
   { href: "/property", label: "APARTMENTS" },
@@ -25,102 +25,136 @@ const NAV_LINKS = [
   { href: "/corporates", label: "CORPORATE" },
 ];
 
-const Topbar = () => {
+const Topbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const isLayoutUsage = pathname !== "/";
+
+  // derive once per render
+  const isLayoutUsage = useMemo(() => pathname !== "/", [pathname]);
+
   const { data: settings, isLoading: isLoadingSettings } = useSettingsQuery();
 
-  useEffect(() => {
-    // Only run on client side to prevent hydration mismatch
-    if (typeof window === 'undefined') return;
+  // Scroll check function (stable)
+  const checkScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 10);
+  }, []);
 
-    // Set initial scroll state based on current scroll position
-    const checkScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+  // Throttled scroll listener using requestAnimationFrame pattern
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // initial check
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      checkScroll();
+    } else {
+      // run on next frame after load
+      requestAnimationFrame(() => checkScroll());
+    }
+
+    let ticking = false;
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          checkScroll();
+          ticking = false;
+        });
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is ready
-    requestAnimationFrame(() => {
-      checkScroll();
-    });
-
-    // Add scroll listener for all pages
-    const onScroll = () => {
-      checkScroll();
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [isLayoutUsage]);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [checkScroll]);
 
   // Nav text coloring
-  const navTextClass = (isScrolled || isLayoutUsage) ? "text-gray-600" : "text-white";
+  const navTextClass = useMemo(
+    () => (isScrolled || isLayoutUsage ? "text-gray-600" : "text-white"),
+    [isScrolled, isLayoutUsage]
+  );
 
-  // Topbar classes based on mode
-  let topbarClass =
-    "w-full left-0 top-0 z-50 py-5 flex items-center h-20 ";
-  if (isLayoutUsage || isScrolled) {
-    topbarClass += "bg-white border-b border-gray-100 fixed shadow-sm";
-  } else {
-    topbarClass += "bg-transparent absolute";
-  }
+  // Topbar classes based on mode (memoized)
+  const topbarClass = useMemo(() => {
+    let base = "w-full left-0 top-0 z-50 py-5 flex items-center h-20 ";
+    if (isLayoutUsage || isScrolled) {
+      base += "bg-white border-b border-gray-100 fixed shadow-sm";
+    } else {
+      base += "bg-transparent absolute";
+    }
+    return base;
+  }, [isLayoutUsage, isScrolled]);
 
   // Check if we should show only search on mobile/md when scrolled (works on all pages)
-  const showSearchOnly = isScrolled;
+  const showSearchOnly = useMemo(() => isScrolled, [isScrolled]);
+
+  // Precompute nav items with stable keys and isActive to avoid re-computations in render
+  const navItems = useMemo(
+    () =>
+      NAV_LINKS.map((link) => {
+        const isActive =
+          pathname === link.href || pathname.startsWith(link.href + "/");
+        return {
+          ...link,
+          isActive,
+        };
+      }),
+    [pathname]
+  );
 
   return (
     <div
       className={topbarClass}
-      style={{ backdropFilter: (!isLayoutUsage && !isScrolled) ? '' : undefined }}
+      style={{ backdropFilter: !isLayoutUsage && !isScrolled ? "" : undefined }}
     >
       <div className="container flex items-center h-full mx-auto">
         {/* Mobile/MD: Show only Search when scrolled, hide logo and menu */}
         {showSearchOnly && (
           <div className="w-full lg:hidden px-4">
-            <Search
-              compact={true}
-              onSearch={() => { }}
-            />
+            <Search compact={true} onSearch={() => {}} />
           </div>
         )}
 
         {/* Left: Logo - hidden on mobile/md when scrolled */}
-        <div className={`flex items-center min-w-[120px] ${showSearchOnly ? 'hidden lg:flex' : ''}`}>
+        <div
+          className={`flex items-center min-w-[120px] ${
+            showSearchOnly ? "hidden lg:flex" : ""
+          }`}
+        >
           <Link href="/">
             {isLoadingSettings ? (
               <SkeletonLogo width={150} height={50} />
             ) : settings?.logo ? (
-              <Image src={settings.logo} alt={settings.site_name || "Logo"} width={150} height={150} priority />
+              <Image
+                src={settings.logo}
+                alt={settings.site_name || "Logo"}
+                width={150}
+                height={150}
+                priority
+              />
             ) : null}
           </Link>
         </div>
 
-
-
         {/* Center: Nav Links (hidden on md and down) */}
         <nav className="flex-1 flex justify-center">
-          <div className={`hidden lg:flex items-center space-x-8 font-bold uppercase tracking-wider ${navTextClass} text-[18px]`}>
-            {NAV_LINKS.map(link => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  prefetch={true}
-                  className={`hover:text-[#00A6D6] transition-colors ${isActive ? 'text-[#00A6D6]' : ''
-                    }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+          <div
+            className={`hidden lg:flex items-center space-x-8 font-bold uppercase tracking-wider ${navTextClass} text-[18px]`}
+          >
+            {navItems.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={true}
+                className={`hover:text-[#00A6D6] transition-colors ${
+                  link.isActive ? "text-[#00A6D6]" : ""
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </nav>
+
         {/* Right: Menu Icon (only shown on small screens, never on md+) - hidden when scrolled on mobile/md */}
         <div className="flex lg:hidden min-w-[44px] justify-end">
           <Sheet>
@@ -139,7 +173,14 @@ const Topbar = () => {
                     {isLoadingSettings ? (
                       <SkeletonLogo width={100} height={40} />
                     ) : settings?.logo ? (
-                      <Image src={settings.logo} alt={settings.site_name || "Logo"} width={100} height={100} priority />
+                      // sheet logo is non-critical, load lazily (reduce LCP impact)
+                      <Image
+                        src={settings.logo}
+                        alt={settings.site_name || "Logo"}
+                        width={100}
+                        height={100}
+                        loading="lazy"
+                      />
                     ) : null}
                   </Link>
                   {/* Single cross icon, not doubled */}
@@ -147,36 +188,34 @@ const Topbar = () => {
                     <button
                       aria-label="Close menu"
                       className="ml-auto p-2 rounded-md hover:bg-gray-100 focus:outline-none"
-                    >
-                    </button>
+                    ></button>
                   </SheetClose>
                 </div>
               </SheetHeader>
               <nav className="flex flex-col px-4 py-8 space-y-6 font-bold uppercase tracking-wider text-gray-700 text-lg">
-                {NAV_LINKS.map(link => {
-                  const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-                  return (
-                    <SheetClose asChild key={link.href}>
-                      <Link
-                        href={link.href}
-                        prefetch={true}
-                        className={`hover:text-[#00A6D6] transition-colors ${isActive ? 'text-[#00A6D6]' : ''
-                          }`}
-                      >
-                        {link.label}
-                      </Link>
-                    </SheetClose>
-                  );
-                })}
+                {navItems.map((link) => (
+                  <SheetClose asChild key={link.href}>
+                    <Link
+                      href={link.href}
+                      prefetch={true}
+                      className={`hover:text-[#00A6D6] transition-colors ${
+                        link.isActive ? "text-[#00A6D6]" : ""
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </SheetClose>
+                ))}
               </nav>
             </SheetContent>
           </Sheet>
         </div>
+
         {/* Right: Blank for desktop menu */}
         <div className="hidden lg:flex min-w-[120px]"></div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Topbar
+export default React.memo(Topbar);
