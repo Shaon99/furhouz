@@ -5,13 +5,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://admin.furhouz.com';
   
   try {
-    // API থেকে corporate data fetch
     const response = await fetch(`${baseUrl}/api/get-corporate`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
-      next: { revalidate: 3600 } // 1 hour cache
+      next: { revalidate: 3600 }
     });
 
     if (!response.ok) {
@@ -34,7 +33,6 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   } catch (error) {
     console.error('Error fetching corporate metadata:', error);
-    // Error হলে default metadata
     const siteName = "Furhouz";
     const title = `Corporate Apartments - ${siteName}`;
     const description = 'Rent corporate apartments saving time and money. Your business travellers will love them.';

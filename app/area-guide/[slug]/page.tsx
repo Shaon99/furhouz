@@ -218,9 +218,10 @@ export default function AreaGuidePage({ params }: AreaParams) {
             {areaData.final_words && (
               <section>
                 <H2>Final Words</H2>
-                <p className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line">
-                  {areaData.final_words}
-                </p>
+                <div
+                  className="mt-4 max-w-[1350px] text-[15px] leading-7 text-gray-800 text-start whitespace-pre-line"
+                  dangerouslySetInnerHTML={{ __html: areaData.final_words }}
+                />
               </section>
             )}
           </div>
