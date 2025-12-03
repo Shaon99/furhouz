@@ -5,7 +5,6 @@ import Footer from "@/components/global/Footer";
 import Topbar from "@/components/home/Topbar";
 import { Providers } from "@/lib/providers";
 import NextTopLoader from "nextjs-toploader";
-import MetaTags from "@/components/global/MetaTags";
 import { fetchSettings } from "@/lib/settings";
 
 /* ===== Font ===== */
@@ -62,7 +61,6 @@ export default function RootLayout({
           shadow="0 0 10px #064d83,0 0 5px #064d83"
         />
         <Providers>
-          <MetaTags />
           <main>
             <Topbar />
             {children}
