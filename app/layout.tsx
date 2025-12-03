@@ -7,6 +7,7 @@ import NextTopLoader from "nextjs-toploader";
 import SuppressHydrationWarning from "@/components/global/SuppressHydrationWarning";
 import ScrollToTop from "@/components/global/ScrollToTop";
 import { fetchSettings } from "@/lib/settings";
+import { Settings } from "@/types/settings";
 import React from "react";
 
 /* ===== Font ===== */
@@ -22,10 +23,10 @@ type RootLayoutProps = {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   // Server-side fetch settings (safe fallback to null)
-  let settings: any = null;
+  let settings: Settings | null = null;
   try {
     settings = await fetchSettings();
-  } catch (e) {
+  } catch {
     settings = null;
   }
 
