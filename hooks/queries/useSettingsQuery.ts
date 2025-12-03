@@ -3,7 +3,6 @@ import { apiFetch } from '@/lib/apiFetch'
 import { Settings } from '@/types/settings';
 
 export function useSettingsQuery() {
-    type Settings = any;
     return useQuery<Settings, Error>({
         queryKey: ["get-settings-data"],
         queryFn: () => apiFetch<Settings>("/api/settings"),

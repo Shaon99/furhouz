@@ -5,13 +5,7 @@ import { usePageBannerQuery } from '@/hooks/queries/usePageBannerQuery';
 import { SkeletonHeader } from '@/components/ui/skeletons';
 
 export default function FAQHero() {
-  const { data, isLoading } = usePageBannerQuery('faq');
-
-  // safely find the faq banner if it exists
-  // API returns: { success, message, banner: [ {pagename, ...}, ...]}
-  const banner = Array.isArray(data?.banner)
-    ? data.banner.find((b: any) => b.pagename === 'faq')
-    : undefined;
+  const { data: banner, isLoading } = usePageBannerQuery('faq');
 
   if (isLoading) {
     return (

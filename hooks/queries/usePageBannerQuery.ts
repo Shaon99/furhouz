@@ -3,7 +3,7 @@ import { apiFetch } from '@/lib/apiFetch'
 import { PageBanner } from '@/types/pageBanner';
 
 export function usePageBannerQuery(pagename: string = 'homepage') {
-    return useQuery<PageBanner[], Error>({
+    return useQuery<PageBanner[], Error, PageBanner | null>({
         queryKey: ['page-banner', pagename],
         queryFn: () => apiFetch<PageBanner[]>('/api/page-banner'),
         staleTime: 1000 * 60 * 60,
