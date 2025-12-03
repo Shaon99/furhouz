@@ -11,7 +11,10 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function CardSlider({ images, slug }: { images: string[]; slug: string }) {
-  const uniqueId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
+  // Use slug-based stable ID instead of Math.random() to prevent hydration mismatch
+  const uniqueId = useMemo(() => {
+    return slug ? slug.replace(/[^a-z0-9]/gi, '').substring(0, 9) || 'default' : 'default';
+  }, [slug]);
   const prevButtonRef = useRef<HTMLButtonElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
@@ -35,6 +38,7 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
     isNavigatingRef.current = true;
     
     // Use Next.js router for fast client-side navigation
+    // This prevents page reload and ensures smooth navigation
     router.push(`/property/${slug}`);
     
     // Reset after navigation starts
