@@ -15,16 +15,21 @@ import FurnishedSections from "@/components/furnished/FurnishedSections";
 import { Sparkles, MapPin, Diamond, Building2 } from "lucide-react";
 import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
 import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
+import { extractLocationSlug } from "@/lib/areaSlug";
 
 function AreaPageContent({ slug }: { slug: string }) {
   const { getApiFilters, hasActiveFilters } = usePropertyFilters();
   const { data: locations = [] } = useLocationQuery();
   const [page, setPage] = useState(1);
   
+  // Extract the short location slug from full slug format
+  // Handles both "gulshan" and "furnished-apartment-for-rent-in-gulshan"
+  const locationSlug = extractLocationSlug(slug);
+  
   // Find current location ID from slug
   const currentLocation = useMemo(() => {
-    return locations.find(loc => loc.slug === slug);
-  }, [locations, slug]);
+    return locations.find(loc => loc.slug === locationSlug);
+  }, [locations, locationSlug]);
   
   // Get filters and automatically set location_id if not already set
   const apiFilters = useMemo(() => {
@@ -40,10 +45,10 @@ function AreaPageContent({ slug }: { slug: string }) {
   const hasFilters = hasActiveFilters();
   const { data: filteredProperties = [], isLoading: isLoadingFiltered } = usePropertiesQuery(page, apiFilters);
   
-  // Get area details from /api/area endpoint
-  const { data: areaDetails, isLoading: isLoadingAreaDetails, error: areaError } = useAreaDetailsQuery(slug);
+  // Get area details from /api/area endpoint (use short slug for API)
+  const { data: areaDetails, isLoading: isLoadingAreaDetails, error: areaError } = useAreaDetailsQuery(locationSlug);
   
-  // Get properties from location detail query (for properties data)
+  // Get properties from location detail query (for properties data) - use short slug for API
   const {
     name: locationName,
     description: locationDescription,
@@ -54,7 +59,7 @@ function AreaPageContent({ slug }: { slug: string }) {
     isLoading: isLoadingLocation,
     error: locationError,
     loadPage: loadLocationPage,
-  } = useLocationDetailQuery(slug, 1, 8);
+  } = useLocationDetailQuery(locationSlug, 1, 8);
 
   // Use area details if available, otherwise fall back to location details
   const name = areaDetails?.name || locationName || '';

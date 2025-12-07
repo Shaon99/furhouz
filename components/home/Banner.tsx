@@ -67,22 +67,22 @@ const Banner = ({ pagename = 'homepage' }: BannerProps) => {
           >
             {banner.title}
           </h1>
-          <p className="text-[1rem] mb-6 max-w-[700px] leading-snug text-black tracking-tight">
-            {banner.subtitle}
-          </p>
-          {banner.url && (
-            <Link
-              href={banner.url}
-              className="inline-block px-8 py-4 rounded w-56 bg-[#064d83] text-white text-[15px] font-medium transition-colors"
-              style={{
-                minWidth: 120,
-                textAlign: "center",
-                boxShadow: '0 1px 8px 0 #ebf3ff'
-              }}
-            >
-              Get to know us
-            </Link>
+          {banner.subtitle && (
+            <p className="text-[1rem] mb-6 max-w-[700px] leading-snug text-black tracking-tight">
+              {banner.subtitle}
+            </p>
           )}
+          <Link
+            href={banner.url || '/corporates'}
+            className="inline-block px-8 py-4 rounded w-56 bg-[#064d83] text-white text-[15px] font-medium transition-colors hover:bg-[#0a5a96]"
+            style={{
+              minWidth: 120,
+              textAlign: "center",
+              boxShadow: '0 1px 8px 0 #ebf3ff'
+            }}
+          >
+            Get to know us
+          </Link>
         </div>
       </div>
     </section>

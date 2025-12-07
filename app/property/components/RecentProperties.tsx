@@ -83,10 +83,6 @@ export default function RecentProperties() {
 
       <div className="mx-auto container px-4 relative">
         <header className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-blue-700 font-semibold text-sm mb-6">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            Premium Properties
-          </div>
           <h2 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent mb-6">
             We&apos;ve recently added some new properties.
           </h2>
