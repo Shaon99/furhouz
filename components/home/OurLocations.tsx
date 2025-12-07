@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
 import { SkeletonCard } from "@/components/ui/skeletons";
+import { getAreaSlug } from "@/lib/areaSlug";
 
 const OurLocations = () => {
   const { data: locations = [], isLoading } = useLocationQuery();
@@ -52,7 +53,7 @@ const OurLocations = () => {
           ) : (
             locations.map((location) => (
               <Link
-                href={`/area/${location.slug}`}
+                href={`/area/${getAreaSlug(location.slug)}`}
                 key={location.id}
                 className="
                   relative rounded-xl overflow-hidden bg-soft shadow-md

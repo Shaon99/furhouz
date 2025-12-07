@@ -9,10 +9,25 @@ import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo } from "react";
+import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
 
 const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const slug = p.slug || p.id?.toString() || "";
+  const { data: settings } = useSettingsQuery();
+  
+  // Get WhatsApp number from settings
+  const whatsappNumber = settings?.whatsapp_number || "";
+  
+  // Create property URL
+  const propertyUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/property/${slug}`
+    : `/property/${slug}`;
+  
+  // Create WhatsApp link with property URL
+  const whatsappLink = whatsappNumber 
+    ? `https://api.whatsapp.com/send?phone=${encodeURIComponent(whatsappNumber)}&text=${encodeURIComponent(propertyUrl)}`
+    : "#";
 
   return (
     <article
@@ -98,9 +113,11 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
 
         {/* Action buttons with enhanced styling */}
         <div className="mt-4 flex items-center gap-3">
-          <Link
-            href="#"
-            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
           >
             <Image
               src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -110,10 +127,10 @@ const PropertyCard: React.FC<{ p: Property }> = ({ p }) => {
               className="transition-transform group-hover/btn:scale-110"
             />
             <span>WhatsApp</span>
-          </Link>
+          </a>
           <Link
-            href="#"
-            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-[#064d83] to-[#0a5a96] px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-[#0a5a96] hover:to-[#0f6ba8] hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
+            href="/get-request"
+            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-[#064d83] to-[#0a5a96] px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-[#0a5a96] hover:to-[#0f6ba8] hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
           >
             <Mail className="h-4 w-4 transition-transform group-hover/btn:scale-110" />
             <span>Email</span>

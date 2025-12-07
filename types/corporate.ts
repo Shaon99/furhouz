@@ -9,6 +9,10 @@ export type Corporate = {
   subtitle: string;
   banner: string;
   link: string;
+  meta_title: string | null;
+  meta_image: string | null;
+  meta_description: string | null;
+  meta_keywords: string | null;
   images: CorporateImage[];
 }
 

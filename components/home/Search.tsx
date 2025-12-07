@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocationQuery } from "@/hooks/queries/useLocationQuery";
 import { SkeletonListItem } from "@/components/ui/skeletons";
+import { getAreaSlug } from "@/lib/areaSlug";
 
 type Props = {
   onSearch?: (place: string) => void;
@@ -139,7 +140,7 @@ export default function Search({ onSearch, compact = false }: Props) {
                     return (
                       <Link
                         key={location.id}
-                        href={`/area/${location.slug}`}
+                        href={`/area/${getAreaSlug(location.slug)}`}
                         role="option"
                         aria-selected={place === location.name}
                         onClick={() => {
@@ -317,7 +318,7 @@ export default function Search({ onSearch, compact = false }: Props) {
                       return (
                         <Link
                           key={location.id}
-                          href={`/area/${location.slug}`}
+                          href={`/area/${getAreaSlug(location.slug)}`}
                           role="option"
                           aria-selected={place === location.name}
                           onClick={() => {
