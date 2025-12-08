@@ -39,6 +39,10 @@ export type PropertyApiItem = {
   unit_per_floor?: string;
   maid_room?: string;
   service_charge?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_img?: string | null;
+  meta_keywords?: string | null;
 }
 
 

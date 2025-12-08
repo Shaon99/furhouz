@@ -8,18 +8,50 @@ import { mapApiPropertyToProperty } from "@/lib/propertyMapper";
 import { Property } from "../types/property";
 import { usePropertyFilters } from "../context/PropertyFilterContext";
 
+// Debounce utility function
+function useDebounce<T extends (...args: unknown[]) => void>(
+  callback: T,
+  delay: number
+): T {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedCallback = useCallback(
+    ((...args: Parameters<T>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    }) as T,
+    [callback, delay]
+  );
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return debouncedCallback;
+}
+
 export default function RecentProperties() {
   const [page, setPage] = useState(1);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const observerRef = useRef<HTMLDivElement>(null);
+  const loadingMoreRef = useRef(false);
   const { getApiFilters, hasActiveFilters, filters } = usePropertyFilters();
-  
+
   const apiFilters = useMemo(() => getApiFilters(), [getApiFilters]);
-  const filtersKey = useMemo(() => 
+  const filtersKey = useMemo(() =>
     `${filters.location || ''}-${filters.price || ''}-${filters.propertyId || ''}`,
     [filters.location, filters.price, filters.propertyId]
   );
-  
+
   const { data: properties = [], isLoading, isFetching } = usePropertiesQuery(page, apiFilters);
 
   // Reset properties when filters change
@@ -27,6 +59,7 @@ export default function RecentProperties() {
     if (hasActiveFilters()) {
       setAllProperties([]);
       setPage(1);
+      loadingMoreRef.current = false;
     }
   }, [filtersKey, hasActiveFilters]);
 
@@ -43,33 +76,42 @@ export default function RecentProperties() {
         );
         return [...prev, ...newProperties.map(mapApiPropertyToProperty)];
       });
+      loadingMoreRef.current = false;
     } else if (hasActiveFilters() && page === 1) {
       // Clear if no results with filters
       setAllProperties([]);
+      loadingMoreRef.current = false;
     }
   }, [properties, page, hasActiveFilters]);
 
   const loadMore = useCallback(() => {
-    if (isLoading || isFetching) return;
+    if (isLoading || isFetching || loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
     setPage(prev => prev + 1);
   }, [isLoading, isFetching]);
 
+  // Debounced load more function
+  const debouncedLoadMore = useDebounce(loadMore, 300);
+
   useEffect(() => {
+    const currentObserver = observerRef.current;
+    if (!currentObserver) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoading && !isFetching && properties.length > 0) {
-          loadMore();
+        if (entries[0].isIntersecting && !isLoading && !isFetching && properties.length > 0 && !loadingMoreRef.current) {
+          debouncedLoadMore();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '200px' } // Start loading 200px before reaching the bottom
     );
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
+    observer.observe(currentObserver);
 
-    return () => observer.disconnect();
-  }, [loadMore, isLoading, isFetching, properties.length]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [debouncedLoadMore, isLoading, isFetching, properties.length]);
 
   return (
     <section className="relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 py-20 overflow-hidden">
@@ -87,7 +129,7 @@ export default function RecentProperties() {
             We&apos;ve recently added some new properties.
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Discover your dream home from our carefully curated collection of premium properties. 
+            Discover your dream home from our carefully curated collection of premium properties.
             Each property is handpicked for quality, location, and value.
           </p>
         </header>
@@ -99,12 +141,26 @@ export default function RecentProperties() {
             ))
           ) : (
             <>
-              {allProperties.map((p) => (
-                <PropertyCard key={p.id} p={p} />
+              {allProperties.map((p, index) => (
+                <PropertyCard
+                  key={p.id}
+                  p={p}
+                  priority={index < 8} // Priority loading for first 8 images
+                />
               ))}
-              {isFetching && Array.from({ length: 4 }).map((_, i) => (
-                <PropertyCardSkeleton key={`skeleton-${i}`} />
-              ))}
+              {isFetching && allProperties.length > 0 && (
+                <>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <PropertyCardSkeleton key={`skeleton-${i}`} />
+                  ))}
+                  <div className="col-span-full flex justify-center items-center py-8">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 bg-blue-50 rounded-xl text-blue-700 border border-blue-200">
+                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <span className="font-semibold text-sm">Loading more properties...</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

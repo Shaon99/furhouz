@@ -12,30 +12,44 @@ import { useEffect } from 'react'
 export default function SuppressHydrationWarning() {
   useEffect(() => {
     // Suppress hydration warnings for browser extension attributes
-    // These are added by extensions after React hydrates and are safe to ignore
     const originalError = console.error
+    const originalWarn = console.warn
+    
+    const shouldSuppress = (message: string): boolean => {
+      const lowerMessage = message.toLowerCase()
+      return (
+        (lowerMessage.includes('hydration') || lowerMessage.includes('hydrat')) &&
+        (
+          lowerMessage.includes('data-new-gr-c-s-check-loaded') ||
+          lowerMessage.includes('data-gr-ext-installed') ||
+          lowerMessage.includes('cz-shortcut-listen') ||
+          lowerMessage.includes('browser extension') ||
+          lowerMessage.includes('server rendered html') ||
+          lowerMessage.includes('client properties') ||
+          lowerMessage.includes('didn\'t match')
+        )
+      )
+    }
+    
     console.error = (...args: unknown[]) => {
       const message = args[0]?.toString() || ''
-
-      // Suppress hydration mismatch warnings for browser extension attributes
-      if (
-        typeof message === 'string' &&
-        (message.includes('hydration') || message.includes('Hydration')) &&
-        (message.includes('data-new-gr-c-s-check-loaded') ||
-          message.includes('data-gr-ext-installed') ||
-          message.includes('cz-shortcut-listen') ||
-          message.includes('browser extension'))
-      ) {
-        // Silently ignore these warnings
+      if (shouldSuppress(message)) {
         return
       }
-
-      // Call original console.error for other messages
       originalError.apply(console, args)
+    }
+    
+    console.warn = (...args: unknown[]) => {
+      const message = args[0]?.toString() || ''
+      if (shouldSuppress(message)) {
+        return
+      }
+      originalWarn.apply(console, args)
     }
 
     return () => {
       console.error = originalError
+      console.warn = originalWarn
     }
   }, [])
 

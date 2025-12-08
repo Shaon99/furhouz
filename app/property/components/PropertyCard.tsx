@@ -8,21 +8,21 @@ import Image from "next/image";
 import { useState } from "react";
 import { useSettingsQuery } from "@/hooks/queries/useSettingsQuery";
 
-export default function PropertyCard({ p }: { p: Property }) {
+export default function PropertyCard({ p, priority = false }: { p: Property; priority?: boolean }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const slug = p.slug || p.id?.toString() || "";
   const { data: settings } = useSettingsQuery();
-  
+
   // Get WhatsApp number from settings
   const whatsappNumber = settings?.whatsapp_number || "";
-  
+
   // Create property URL
-  const propertyUrl = typeof window !== 'undefined' 
+  const propertyUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/property/${slug}`
     : `/property/${slug}`;
-  
+
   // Create WhatsApp link with property URL
-  const whatsappLink = whatsappNumber 
+  const whatsappLink = whatsappNumber
     ? `https://api.whatsapp.com/send?phone=${encodeURIComponent(whatsappNumber)}&text=${encodeURIComponent(propertyUrl)}`
     : "#";
 
@@ -32,7 +32,7 @@ export default function PropertyCard({ p }: { p: Property }) {
     >
       {/* Gradient overlay for premium look */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      
+
       <div className="relative">
         <div className="relative overflow-hidden rounded-xl">
           {p.code && (
@@ -42,7 +42,7 @@ export default function PropertyCard({ p }: { p: Property }) {
           )}
 
           {/* Heart icon */}
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -50,94 +50,93 @@ export default function PropertyCard({ p }: { p: Property }) {
             }}
             className="absolute right-3 top-12 z-40 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
           >
-            <Heart 
-              className={`h-5 w-5 transition-all duration-300 ${
-                isFavorited 
-                  ? 'text-red-500 fill-current' 
+            <Heart
+              className={`h-5 w-5 transition-all duration-300 ${isFavorited
+                  ? 'text-red-500 fill-current'
                   : 'text-slate-600'
-              }`} 
+                }`}
             />
           </button>
-          
-          <CardSlider images={p.images} slug={slug} />
+
+          <CardSlider images={p.images} slug={slug} priority={priority} />
         </div>
 
         {/* Content area with padding */}
         <div className="p-4">
           <div className="mt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-slate-900">
-              {p.price.toLocaleString()}
-            </span>
-            <span className="text-sm font-medium text-slate-500">BDT</span>
-          </div>
-          <div className="mt-1 text-xs text-slate-400">per month</div>
-        </div>
-
-        {/* Title and location */}
-        <div className="mt-1">
-          <Link href={`/property/${slug}`} className="block group/title">
-            <h3 className="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-slate-700 transition-colors group-hover/title:underline">
-              {p.title}
-            </h3>
-            <div className="mt-1 flex items-center gap-1 text-sm text-slate-600">
-              <MapPin className="h-3.5 w-3.5 text-slate-400" />
-              <span className="line-clamp-1">{p.road}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold tracking-tight text-slate-900">
+                {p.price.toLocaleString()}
+              </span>
+              <span className="text-sm font-medium text-slate-500">BDT</span>
             </div>
-            {p.typeTitle && (
-              <div className="mt-1.5">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-sky-100 text-sky-700 border border-sky-200">
-                  {p.typeTitle}
-                </span>
+            <div className="mt-1 text-xs text-slate-400">per month</div>
+          </div>
+
+          {/* Title and location */}
+          <div className="mt-1">
+            <Link href={`/property/${slug}`} className="block group/title">
+              <h3 className="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-slate-700 transition-colors group-hover/title:underline">
+                {p.title}
+              </h3>
+              <div className="mt-1 flex items-center gap-1 text-sm text-slate-600">
+                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                <span className="line-clamp-1">{p.road}</span>
               </div>
-            )}
-          </Link>
-        </div>
+              {p.typeTitle && (
+                <div className="mt-1.5">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-sky-100 text-sky-700 border border-sky-200">
+                    {p.typeTitle}
+                  </span>
+                </div>
+              )}
+            </Link>
+          </div>
 
-        {/* Property features with enhanced styling */}
-        <div className="mt-2 flex items-center justify-between rounded-xl bg-slate-50/80 p-3 backdrop-blur-sm">
-          <div className="flex items-center gap-1 text-slate-700">
-            <BedDouble className="h-4 w-4 text-slate-500" />
-            <span className="text-sm font-medium">{p.beds}</span>
+          {/* Property features with enhanced styling */}
+          <div className="mt-2 flex items-center justify-between rounded-xl bg-slate-50/80 p-3 backdrop-blur-sm">
+            <div className="flex items-center gap-1 text-slate-700">
+              <BedDouble className="h-4 w-4 text-slate-500" />
+              <span className="text-sm font-medium">{p.beds}</span>
+            </div>
+            <div className="h-4 w-px bg-slate-300" />
+            <div className="flex items-center gap-1 text-slate-700">
+              <Bath className="h-4 w-4 text-slate-500" />
+              <span className="text-sm font-medium">{p.baths}</span>
+            </div>
+            <div className="h-4 w-px bg-slate-300" />
+            <div className="flex items-center gap-1 text-slate-700">
+              <Ruler className="h-4 w-4 text-slate-500" />
+              <span className="text-sm font-medium">{p.areaSft}</span>
+              <span className="text-xs text-slate-500">sqft</span>
+            </div>
           </div>
-          <div className="h-4 w-px bg-slate-300" />
-          <div className="flex items-center gap-1 text-slate-700">
-            <Bath className="h-4 w-4 text-slate-500" />
-            <span className="text-sm font-medium">{p.baths}</span>
-          </div>
-          <div className="h-4 w-px bg-slate-300" />
-          <div className="flex items-center gap-1 text-slate-700">
-            <Ruler className="h-4 w-4 text-slate-500" />
-            <span className="text-sm font-medium">{p.areaSft}</span>
-            <span className="text-xs text-slate-500">sqft</span>
-          </div>
-        </div>
 
-        {/* Action buttons with enhanced styling */}
-        <div className="mt-4 flex items-center gap-3">
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
-          >
-            <Image
-              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-              alt="Whatsapp"
-              width={16}
-              height={16}
-              className="transition-transform group-hover/btn:scale-110"
-            />
-            <span>WhatsApp</span>
-          </a>
-          <Link
-            href="/get-request"
-            className="group/btn flex-1 rounded-xl bg-gradient-to-r from-[#064d83] to-[#0a5a96] px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-[#0a5a96] hover:to-[#0f6ba8] hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
-          >
-            <Mail className="h-4 w-4 transition-transform group-hover/btn:scale-110" />
-            <span>Email</span>
-          </Link>
-        </div>
+          {/* Action buttons with enhanced styling */}
+          <div className="mt-4 flex items-center gap-3">
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/btn flex-1 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
+            >
+              <Image
+                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+                alt="Whatsapp"
+                width={16}
+                height={16}
+                className="transition-transform group-hover/btn:scale-110"
+              />
+              <span>WhatsApp</span>
+            </a>
+            <Link
+              href="/get-request"
+              className="group/btn flex-1 rounded-xl bg-gradient-to-r from-[#064d83] to-[#0a5a96] px-4 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-[#0a5a96] hover:to-[#0f6ba8] hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 outline-none focus:outline-none"
+            >
+              <Mail className="h-4 w-4 transition-transform group-hover/btn:scale-110" />
+              <span>Email</span>
+            </Link>
+          </div>
         </div>
       </div>
     </article>

@@ -6,81 +6,113 @@ import { Providers } from "@/lib/providers";
 import NextTopLoader from "nextjs-toploader";
 import SuppressHydrationWarning from "@/components/global/SuppressHydrationWarning";
 import ScrollToTop from "@/components/global/ScrollToTop";
-import { fetchSettings } from "@/lib/settings";
-import { Settings } from "@/types/settings";
 import React from "react";
+import { Metadata } from "next";
+import { fetchSettings } from "@/lib/settings";
 
-/* ===== Font ===== */
+// ===== Font Setup =====
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
-type RootLayoutProps = {
-  children: React.ReactNode;
+// Cache metadata fetch for 1 hour
+export const revalidate = 3600;
+
+// Default metadata values
+const DEFAULTS = {
+  title: "Furhouz is the best furnished apartments provider.",
+  description: "Furhouz is the best furnished apartments provider.",
+  image: "/placeholder.png",
+  icon: "/favicon.png",
+  url: "https://furhouz.com",
+  type: "website" as const,
+  siteName: "Furhouz",
 };
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  // Server-side fetch settings (safe fallback to null)
-  let settings: Settings | null = null;
+// Helper to build Metadata object
+const buildMetadata = ({
+  title,
+  description,
+  image,
+  icon,
+  url,
+  type,
+  siteName,
+}: {
+  title: string;
+  description: string;
+  image: string;
+  icon: string;
+  url: string;
+  type: string;
+  siteName: string;
+}): Metadata => ({
+  metadataBase: new URL(url),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    images: [{ url: image }],
+    siteName,
+    url,
+    type,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [image],
+  },
+  icons: {
+    icon,
+    shortcut: icon,
+    apple: icon,
+  },
+});
+
+// Generate dynamic metadata using settings API, fallback to defaults
+export async function generateMetadata(): Promise<Metadata> {
   try {
-    settings = await fetchSettings();
+    const settings = await fetchSettings();
+    const data = settings?.data || {};
+
+    const meta = {
+      title: data.meta_title?.trim() || DEFAULTS.title,
+      description: data.meta_description?.trim() || DEFAULTS.description,
+      image: data.meta_image?.trim() || DEFAULTS.image,
+      icon: data.favicon?.trim() || DEFAULTS.icon,
+      url: DEFAULTS.url,
+      type: DEFAULTS.type,
+      siteName: data.site_name?.trim() || DEFAULTS.siteName,
+    };
+    return buildMetadata(meta);
   } catch {
-    settings = null;
+    return buildMetadata(DEFAULTS);
   }
+}
 
-  // Consolidate meta data once
-  const meta = {
-    title: settings?.meta_title ?? settings?.site_name ?? "Furhouz",
-    description:
-      settings?.meta_description ?? "Furhouz is the best furnished apartments provider.",
-    image: settings?.meta_image ?? settings?.logo ?? "/default-meta-image.png",
-    favicon: settings?.favicon ?? null,
-  };
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-        <title>{meta.title}</title>
-        <meta name="title" content={meta.title} />
-        <meta name="description" content={meta.description} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={meta.title} />
-        <meta property="og:description" content={meta.description} />
-        <meta property="og:image" content={meta.image} />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={meta.title} />
-        <meta name="twitter:description" content={meta.description} />
-        <meta name="twitter:image" content={meta.image} />
-
-        {meta.favicon && <link rel="icon" href={meta.favicon} />}
-      </head>
       <body
         className={`${inter.variable} antialiased bg-background text-foreground overflow-x-hidden`}
+        suppressHydrationWarning
       >
-        {/* Prevent hydration mismatch flashes inside client components */}
         <SuppressHydrationWarning />
-
         <NextTopLoader
           color="#064d83"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
-          crawl={true}
+          crawl
           showSpinner={false}
           easing="ease"
           speed={200}
           shadow="0 0 10px #064d83,0 0 5px #064d83"
         />
-
         <Providers>
           <ScrollToTop />
           <main>
