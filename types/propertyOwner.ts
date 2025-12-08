@@ -23,6 +23,10 @@ export type PropertyOwnerDetails = {
   rules: PropertyOwnerRule[];
   faqs: PropertyOwnerFAQ[];
   gallery_images: PropertyOwnerGalleryImage[];
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_image?: string | null;
+  meta_keywords?: string | null;
 }
 
 

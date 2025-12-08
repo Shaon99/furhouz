@@ -10,7 +10,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-export default function CardSlider({ images, slug }: { images: string[]; slug: string }) {
+export default function CardSlider({ images, slug, priority = false }: { images: string[]; slug: string; priority?: boolean }) {
   // Use slug-based stable ID instead of Math.random() to prevent hydration mismatch
   const uniqueId = useMemo(() => {
     return slug ? slug.replace(/[^a-z0-9]/gi, '').substring(0, 9) || 'default' : 'default';
@@ -36,11 +36,11 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
     }
 
     isNavigatingRef.current = true;
-    
+
     // Use Next.js router for fast client-side navigation
     // This prevents page reload and ensures smooth navigation
     router.push(`/property/${slug}`);
-    
+
     // Reset after navigation starts
     setTimeout(() => {
       isNavigatingRef.current = false;
@@ -95,11 +95,11 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
       >
         {(images && images.length > 0 ? images : ['/placeholder.png']).map((src, i) => {
           // Use placeholder if image failed to load, is empty, null, or undefined
-          const imageSrc = failedImages.has(i) || !src || src.trim() === '' || src === 'null' || src === 'undefined' 
-            ? '/placeholder.png' 
+          const imageSrc = failedImages.has(i) || !src || src.trim() === '' || src === 'null' || src === 'undefined'
+            ? '/placeholder.png'
             : src;
           return (
-            <SwiperSlide 
+            <SwiperSlide
               key={i}
               onClick={handleNavigate}
               style={{ cursor: 'pointer' }}
@@ -111,7 +111,8 @@ export default function CardSlider({ images, slug }: { images: string[]; slug: s
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(min-width:1280px) 280px, (min-width:768px) 33vw, 100vw"
-                  priority={i === 0}
+                  priority={priority && i === 0}
+                  loading={priority && i === 0 ? "eager" : "lazy"}
                   onError={() => setFailedImages(prev => new Set(prev).add(i))}
                 />
               </div>
