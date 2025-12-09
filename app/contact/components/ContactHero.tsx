@@ -30,9 +30,9 @@ export default function ContactHero() {
             className="object-cover object-center brightness-75 rounded-lg"
           />
           <div className="absolute inset-0 flex flex-col justify-center px-4 sm:px-12 text-center items-center">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1 text-white">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-1 text-white">
               Get in touch with us
-            </h1>
+            </h2>
           </div>
         </section>
       </div>
