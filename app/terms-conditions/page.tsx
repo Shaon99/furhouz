@@ -33,7 +33,7 @@ const TermsConditionsPage: React.FC = () => {
     return (
       <div className="max-w-[1350px] py-10 lg:py-16 mt-12 container mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold md:text-4xl text-gray-800">Terms and Conditions</h1>
+          <h2 className="text-3xl font-bold md:text-4xl text-gray-800">Terms and Conditions</h2>
           <div className="mt-2">
             <span className="inline-block w-36 h-1 bg-blue-500 rounded" />
             <span className="inline-block align-middle ml-1 text-blue-500" style={{ fontWeight: 'bold' }}>··</span>
