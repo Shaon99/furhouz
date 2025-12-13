@@ -67,6 +67,11 @@ export default function PropertySearch() {
 
   return (
     <section className="bg-[#04497A] py-6 w-full flex justify-center mt-20">
+      <div className="w-full container mx-auto mb-4">
+        <h1 className="text-center text-2xl md:text-4xl font-bold text-white mb-6">
+          Find Your Perfect Apartment
+        </h1>
+      </div>
       <div
         className="
           flex flex-col gap-4 w-full container mx-auto items-stretch justify-center

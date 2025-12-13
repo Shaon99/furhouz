@@ -82,9 +82,9 @@ export default function FurnishedSections({
       {heroSection && (
         <section className="py-10 sm:py-12">
           <div className="max-w-[1350px] mx-auto">
-            <h1 className="text-center text-3xl sm:text-4xl font-extrabold text-brand">
+            <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-brand">
               {heroSection.title}
-            </h1>
+            </h2>
             <p className="mt-5 text-black leading-relaxed text-lg whitespace-pre-line">
               {getSectionContent(heroSection)}
             </p>

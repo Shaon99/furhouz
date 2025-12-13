@@ -61,12 +61,12 @@ const Banner = ({ pagename = 'homepage' }: BannerProps) => {
           <span className="font-bold text-xl text-black uppercase tracking-wide mb-2">
             BUSINESS
           </span>
-          <h1
+          <h2
             className="text-[2rem] md:text-[2.5rem] font-semibold text-black leading-tight mb-2 tracking-tight"
             style={{ fontFamily: "var(--font-sans,inherit)" }}
           >
             {banner.title}
-          </h1>
+          </h2>
           {banner.subtitle && (
             <p className="text-[1rem] mb-6 max-w-[700px] leading-snug text-black tracking-tight">
               {banner.subtitle}
