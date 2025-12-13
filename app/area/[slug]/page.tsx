@@ -145,10 +145,10 @@ function AreaPageContent({ slug }: { slug: string }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-200 to-blue-200">
         <div className="text-center p-10 bg-white/70 backdrop-blur rounded-lg shadow-lg border border-pink-200 animate-fade-in">
-          <h1 className="text-3xl font-extrabold text-pink-700 mb-4 flex items-center justify-center gap-2">
+          <h2 className="text-3xl font-extrabold text-pink-700 mb-4 flex items-center justify-center gap-2">
             <Sparkles className="w-7 h-7 text-pink-400 animate-bounce" />
             {error || "Area not found"}
-          </h1>
+          </h2>
           <p className="text-gray-700 text-lg">Please check the URL and try again.</p>
         </div>
       </div>

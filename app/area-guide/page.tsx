@@ -15,12 +15,6 @@ const PropertySalePage = () => {
       <section className="w-full py-10 bg-white container mx-auto">
         <h1 className="text-center font-bold text-brand-700 text-3xl md:text-4xl mb-8">Area Guide</h1>
         <div className="max-w-[1350px] mx-auto">
-          <h2
-            className="text-center font-bold text-brand-700 text-3xl md:text-4xl mb-8"
-            style={{ color: "#064d83" }}
-          >
-            Area Guide
-          </h2>
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-center items-center">
               {[1, 2, 3, 4].map((i) => (

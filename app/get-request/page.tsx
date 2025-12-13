@@ -68,6 +68,9 @@ export default function EnquiryPage() {
     <main className="min-h-screen w-full bg-[#f7f8fa] grid place-items-center p-4 mt-3">
       <Card className="w-full max-w-3xl rounded-[10px] border-0 shadow-[0_10px_40px_rgba(8,15,52,.06)] bg-white/90">
         <CardContent className="p-6 sm:p-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">
+            Property Enquiry Form
+          </h1>
           <div className="flex flex-col items-start sm:items-center gap-2 sm:gap-3 text-center sm:text-left">
             <div className="w-[180px] sm:self-start">
               {isLoadingSettings ? (

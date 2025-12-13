@@ -39,7 +39,7 @@ export default function Footer() {
             </div>
             {/* Right: General Links */}
             <div className="flex flex-col items-center md:items-start">
-              <h1 className="block font-bold text-brand h3 mb-2">General Link</h1>
+              <h2 className="block font-bold text-brand h3 mb-2">General Link</h2>
               <ul className="space-y-0.5 p mt-2 text-[#064d83]">
                 <li>
                   <Link href="/" className="hover:underline text-[color:var(--foreground)]">
@@ -76,7 +76,7 @@ export default function Footer() {
           </div>
           {/* Right: Contact Us */}
           <div className="flex flex-col md:w-[40%] items-center md:items-start">
-            <h1 className="block font-bold text-brand h3 mb-2">Contact Us</h1>
+            <h2 className="block font-bold text-brand h3 mb-2">Contact Us</h2>
             {isLoading ? (
               <div className="mt-2 w-full">
                 <SkeletonContactInfo lines={3} />
